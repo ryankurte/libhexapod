@@ -10,8 +10,14 @@ extern "C" {
 #include <stdlib.h>
 #include <stdint.h>
 
-void HEX_leg_ik2(float d, float h, float* alpha, float* beta);
-void HEX_leg_ik3(float x, float y, float h, float* alpha, float* beta, float* omega);
+#include "hexapod/hexapod_defs.h"
+
+void HPOD_init(struct hexapod_s* hexapod, float offset_a, float len_ab, float len_bc);
+
+void HPOD_leg_ik2(struct hexapod_s* hexapod, float d, float h, float* alpha, float* beta);
+
+void HPOD_leg_ik3(struct hexapod_s* hexapod, float x, float y, float h,
+                 float* alpha, float* beta, float* omega);
 
 #ifdef __cplusplus
 }
