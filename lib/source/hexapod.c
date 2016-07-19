@@ -4,8 +4,9 @@
 #include <stdint.h>
 #include <math.h>
 
-void HPOD_init(struct hexapod_s* hexapod, float offset_a, float len_ab, float len_bc)
+void HPOD_init(struct hexapod_s* hexapod, float width, float offset_a, float len_ab, float len_bc)
 {
+    hexapod->width = width;
     hexapod->offset_a = offset_a;
     hexapod->len_ab = len_ab;
     hexapod->len_bc = len_bc;
@@ -63,16 +64,46 @@ void HPOD_leg_ik2(struct hexapod_s* hexapod, float d, float h, float* alpha, flo
  * H is offset from zero (in line) position
  */
 void HPOD_leg_ik3(struct hexapod_s* hexapod, float x, float y, float h,
-                 float* alpha, float* beta, float* omega)
+                  float* alpha, float* beta, float* omega)
 {
     // Calculate distance and angle from origin to point (x, y)
     float len_xy = sqrt(pow(x, 2) + pow(y, 2));
     float angle_xy = atan(y / x);
 
     // Process ik2 equation with total distance (less offset between joints at A)
-    HEX_leg_ik2(hexapod, len_xy - hexapod->offset_a, h, alpha, beta);
+    HPOD_leg_ik2(hexapod, len_xy - hexapod->offset_a, h, alpha, beta);
 
     // Output angle omega
     *omega = angle_xy;
 }
+
+/**
+ * Calculate the position of a limb for a provided gait
+ * with specified motion at a given walking phase
+ */
+void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector_s *movement,
+                    float phase_scl, float* x, float* y, float* h)
+{
+
+    float phase_scl_wrapped = HPOD_WRAP_SCL(phase_scl);
+    float phase_rads = HPOD_SCL_TO_RAD(phase_scl_wrapped);
+
+    // Forward walk
+    *x = gait->offset_width;
+    *y = sin(phase_rads) * gait->movement_length * movement->y;
+    *h = ((fabs(phase_rads) < M_PI / 2) ? gait->movement_height : -gait->movement_height) + gait->offset_height;
+
+#if 0
+    // Sideways walk
+    x = sin(phase) * gait->movement_width * movement->x + gait->offset_width;
+    y = 0;
+    h = h = ((fabs(phase) < M_PI / 2) ? gait->height : -gait->height) + gait->offset_height;
+
+    // Rotate
+#endif
+
+}
+
+
+
 
