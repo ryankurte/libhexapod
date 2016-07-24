@@ -78,8 +78,8 @@ void HPOD_leg_ik3(struct hexapod_s* hexapod, float x, float y, float h,
 }
 
 /**
- * Calculate the position of a limb for a provided gait
- * with specified motion at a given walking phase
+ * Calculate the position of a limb for a provided gait with specified motion at a given walking phase
+ * Phase is -1 to 1, with contact between -0.5 and 0.5 to help merge movements.
  */
 void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector_s *movement,
                     float phase_scl, float* x, float* y, float* h)
@@ -88,20 +88,16 @@ void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct 
     float phase_scl_wrapped = HPOD_WRAP_SCL(phase_scl);
     float phase_rads = HPOD_SCL_TO_RAD(phase_scl_wrapped);
 
+    // Forward or reverse motion achieved by inverting the phase of the underlying sinusoid
+    int phase_invert_y = (movement->y >= 0) ? -1 : 1;
+    int phase_invert_x = (movement->x >= 0) ? -1 : 1;
+
     // Forward walk
-    *x = gait->offset_width;
-    *y = sin(phase_rads) * gait->movement_length * movement->y;
+    *x = sin(phase_rads) * gait->movement_width * movement->x * phase_invert_x + gait->offset_width;
+    *y = sin(phase_rads) * gait->movement_length * movement->y * phase_invert_y;
     *h = ((fabs(phase_rads) < M_PI / 2) ? gait->movement_height : -gait->movement_height) + gait->offset_height;
 
-#if 0
-    // Sideways walk
-    x = sin(phase) * gait->movement_width * movement->x + gait->offset_width;
-    y = 0;
-    h = h = ((fabs(phase) < M_PI / 2) ? gait->height : -gait->height) + gait->offset_height;
-
-    // Rotate
-#endif
-
+    // TODO: how does rotation fit into this?
 }
 
 
