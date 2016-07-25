@@ -23,6 +23,7 @@ struct hpod_gait_s {
     float movement_height;
     float offset_height;
     float movement_length;
+    float height_scale;
 };
 
 struct hpod_vector_s {
