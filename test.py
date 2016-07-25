@@ -91,7 +91,7 @@ def calculate_fk(a, b, o):
     pos_b = (pos_a[0] + np.cos(o) * len_ab_xy, pos_a[1] + np.sin(o) * len_ab_xy, pos_a[2] + np.sin(a) * len_ab)
     world_beta = a + b - np.pi;
     len_bc_xy = np.cos(world_beta) * len_bc;
-    pos_c = (pos_b[0] + np.cos(o) * len_bc_xy, pos_b[1] + np.sin(o) * len_bc_xy, pos_b[2] - np.sin(b) * len_bc)
+    pos_c = (pos_b[0] + np.cos(o) * len_bc_xy, pos_b[1] + np.sin(o) * len_bc_xy, pos_b[2] + np.sin(world_beta) * len_bc)
 
     return (pos_a, pos_b, pos_c)
 
