@@ -1,0 +1,7 @@
+libs/
+History/
+project Outputs*/
+__Previews/
+*.htm
+*.DS_Store
+build/
