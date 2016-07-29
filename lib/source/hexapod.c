@@ -97,6 +97,12 @@ void HPOD_body_transform(struct hexapod_s* hexapod, float alpha, float beta, int
     *joint_y = (y - w_y);
 }
 
+/**
+ * 2 Joint Arm Forward Kinematics
+ * Calculates the position in space from a given control tuple
+ * X direction is outwards from the hexapod,
+ * H is offset from zero (in line) position
+ */
 void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
                  float* x, float* h)
 {
@@ -114,8 +120,9 @@ void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
 /**
  * 3 Joint Arm Forward Kinematics
  * Calculates the position in space from a given control tuple
- * X direction is outwards from the hexapod, Y is forwards and backward
+ * X direction is outwards from the hexapod,
  * H is offset from zero (in line) position
+ * Y is forwards and backward
  */
 void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float theta,
                  float* x, float* y, float* h)
@@ -125,20 +132,14 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
     float a_y = sin(theta) * hexapod->offset_a;
     float a_h = 0;
 
-    // Joint B position
-    float len_ab_xy = cos(alpha) * hexapod->len_ab;
-    float b_x = a_x + cos(theta) * len_ab_xy;
-    float b_y = a_y + sin(theta) * len_ab_xy;
-    float b_h = a_h + sin(alpha) * hexapod->len_ab;
+    float c_x, c_h;
 
-    // Joint C position
-    float world_beta = alpha + beta - M_PI;
-    float len_bc_xy = cos(world_beta) * hexapod->len_bc;
-    *x = b_x + cos(theta) * len_bc_xy;
-    *y = b_y + sin(theta) * len_bc_xy;
-    *h = b_h + sin(world_beta) * hexapod->len_bc;
+    HPOD_leg_fk2(hexapod, alpha, beta, &c_x, &c_h);
+
+    *x = a_x + c_x;
+    *y = a_y + 0;
+    *h = a_h + c_h;
 }
-
 
 /**
  * Calculate the position of a limb for a provided gait with specified motion at a given walking phase

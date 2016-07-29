@@ -107,5 +107,31 @@ TEST_F(HexTest, IK2SweepXH)
     ASSERT_EQ(true, x_error < 0.1);
 }
 
+TEST_F(HexTest, IK3SweepY)
+{
+    float alpha, beta, theta, _x, _y, _h;
 
+    float h_error = 0.0;
+    float x_error = 0.0;
+    float y_error = 0.0;
+
+    float h = 0;
+    float x = hexy.len_ab + hexy.len_bc / 2;
+
+    for (int i = 0; i < SWEEP_SIZE; i++) {
+        float y = -hexy.length / 4 + hexy.length / 2 / SWEEP_SIZE * i;
+
+        HPOD_leg_ik3(&hexy, x, y, h, &alpha, &beta, &theta);
+        HPOD_leg_fk3(&hexy, alpha, beta, theta, &_x, &y, &_h);
+        //printf("X: %f (%f) Y: %f (%f) H: %f (%f)\r\n", _x, x, _y, y, _h, h);
+
+        x_error += (x - _x);
+        y_error += (y - _y);
+        h_error += (h - _h);
+    }
+
+    ASSERT_EQ(true, h_error < 0.1);
+    ASSERT_EQ(true, x_error < 0.1);
+    ASSERT_EQ(true, y_error < 0.1);
+}
 
