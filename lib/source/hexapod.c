@@ -72,32 +72,6 @@ void HPOD_leg_ik3(struct hexapod_s* hexapod, float x, float y, float h,
 }
 
 /**
- * Body to joint space transformation
- * Computes rotation about alpha (x axis) and beta (y axis) with provided offsets to
- * transform locations from world space to joint space for leg IK equations
- * alpha is the body roll, beta is body pitch
- * X direction is outwards from the hexapod, Y is forwards and backward
- * H is body height from zero (sitting on XY plane)
- */
-void HPOD_body_transform(struct hexapod_s* hexapod, float alpha, float beta, int offset_x, int offset_y,
-                         float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
-{
-    // Calculate change in Z (height) for angle beta (pitch) for a given joint
-    float shifted_z = z + offset_y * sin(beta);
-
-    // Convert world heights to hexapod local heights (wrt. body frame)
-    *joint_z = shifted_z * cos(beta);
-
-    // Calculate changes in X and Y for angle alpha (roll) for a given joint
-    float w_x = offset_x / 2 * cos(alpha);
-    float w_y = offset_x / 2 * sin(alpha);
-
-    // Shift X and Y locations by body width in local frame
-    *joint_x = (x - w_x);
-    *joint_y = (y - w_y);
-}
-
-/**
  * 2 Joint Arm Forward Kinematics
  * Calculates the position in space from a given control tuple
  * X direction is outwards from the hexapod,
@@ -132,14 +106,44 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
     float a_y = sin(theta) * hexapod->offset_a;
     float a_h = 0;
 
-    float c_x, c_h;
+    float c_d, c_h;
 
-    HPOD_leg_fk2(hexapod, alpha, beta, &c_x, &c_h);
+    HPOD_leg_fk2(hexapod, alpha, beta, &c_d, &c_h);
 
-    *x = a_x + c_x;
-    *y = a_y + 0;
-    *h = a_h + c_h;
+    float len_ac = sqrt(pow(c_d, 2) + pow(c_h, 2));
+
+    *x = a_x + c_d * cos(theta);
+    *y = a_y + c_d * sin(theta);
+    *h = c_h;
 }
+
+
+/**
+ * Body to joint space transformation
+ * Computes rotation about alpha (x axis) and beta (y axis) with provided offsets to
+ * transform locations from world space to joint space for leg IK equations
+ * alpha is the body roll, beta is body pitch
+ * X direction is outwards from the hexapod, Y is forwards and backward
+ * H is body height from zero (sitting on XY plane)
+ */
+void HPOD_body_transform(struct hexapod_s* hexapod, float alpha, float beta, int offset_x, int offset_y,
+                         float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
+{
+    // Calculate change in Z (height) for angle beta (pitch) for a given joint
+    float shifted_z = z + offset_y * sin(beta);
+
+    // Convert world heights to hexapod local heights (wrt. body frame)
+    *joint_z = shifted_z / cos(beta);
+
+    // Calculate changes in X and Y for angle alpha (roll) for a given joint
+    float w_x = offset_x / 2 * cos(alpha);
+    float w_y = offset_x / 2 * sin(alpha);
+
+    // Shift X and Y locations by body width in local frame
+    *joint_x = (x - w_x);
+    *joint_y = (y - w_y);
+}
+
 
 /**
  * Calculate the position of a limb for a provided gait with specified motion at a given walking phase

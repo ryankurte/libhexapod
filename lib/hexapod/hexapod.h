@@ -25,6 +25,9 @@ void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
 void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float theta,
                  float* x, float* y, float* h);
 
+void HPOD_body_transform(struct hexapod_s* hexapod, float alpha, float beta, int offset_x, int offset_y,
+                         float x, float y, float z, float* joint_x, float* joint_y, float* joint_z);
+
 void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector_s *movement,
                     float phase, float* x, float* y, float* h);
 
