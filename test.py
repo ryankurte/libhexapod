@@ -7,6 +7,9 @@ import matplotlib.animation as animation
 
 # Configuration variables
 
+hex_len = 30;
+hex_width = 20;
+
 offset_a = 2
 len_ab = 6
 len_bc = 6
@@ -82,10 +85,10 @@ def ik3(x, y, h):
     alpha, beta = ik2(len_xy - offset_a, h);
 
     # Output all angles
-    omega = angle_xy;
-    return (alpha, beta, omega)
+    theta = angle_xy;
+    return (alpha, beta, theta)
 
-def calculate_fk(a, b, o):
+def calculate_fk3(a, b, o):
     pos_a = (np.cos(o) * offset_a, np.sin(o) * offset_a, 0);
     len_ab_xy = np.cos(a) * len_ab;
     pos_b = (pos_a[0] + np.cos(o) * len_ab_xy, pos_a[1] + np.sin(o) * len_ab_xy, pos_a[2] + np.sin(a) * len_ab)
@@ -95,8 +98,8 @@ def calculate_fk(a, b, o):
 
     return (pos_a, pos_b, pos_c)
 
-def calculate_fk_ep(a, b, o):
-    pa, pb, pc = calculate_fk(a, b, o)
+def calculate_fk3_ep(a, b, o):
+    pa, pb, pc = calculate_fk3(a, b, o)
     return pc
 
 def gen_subplt(title, index, range, data, error):
@@ -128,7 +131,7 @@ bsubplt.set_ylim(-np.pi, np.pi);
 bplot, = plt.plot(phase, b);
 
 osubplt = plt.subplot2grid((3, 4), (2, 1))
-plt.title('Omega')
+plt.title('theta')
 osubplt.set_ylim(-np.pi, np.pi);
 oplot, = plt.plot(phase, o);
 
@@ -170,7 +173,7 @@ def update(val):
         y[i] = fy(m, phase[i])
         h[i] = fh(m, phase[i])
         a[i], b[i], o[i] = ik3(x[i], y[i], h[i])
-        ep_x[i], ep_y[i], ep_h[i] = calculate_fk_ep(a[i], b[i], o[i])
+        ep_x[i], ep_y[i], ep_h[i] = calculate_fk3_ep(a[i], b[i], o[i])
 
     # Attach to plots
     xplot.set_data(phase, x)
@@ -191,16 +194,24 @@ def update(val):
 sxmove.on_changed(update)
 symove.on_changed(update)
 
+def build_leg(frame, offset):
+
+    pos_a, pos_b, pos_c = calculate_fk3(a[frame], b[frame], o[frame])
+
+    leg_x = [0 + offset[0], pos_a[0] + offset[0], pos_b[0] + offset[0], pos_c[0] + offset[0]]
+    leg_y = [0 + offset[1], pos_a[1] + offset[1], pos_b[1] + offset[1], pos_c[1] + offset[1]]
+    leg_h = [0 + offset[2], pos_a[2] + offset[2], pos_b[2] + offset[2], pos_c[2] + offset[2]]
+
+    return leg_x, leg_y, leg_h
+
 # Animation update function
 def update_anim(frame):
     animplot.set_data([0, x[frame]], [0, y[frame]])
     animplot.set_3d_properties([0, h[frame]])
 
-    pos_a, pos_b, pos_c = calculate_fk(a[frame], b[frame], o[frame])
+    pos_a, pos_b, pos_c = calculate_fk3(a[frame], b[frame], o[frame])
 
-    leg_x = [0, pos_a[0], pos_b[0], pos_c[0]]
-    leg_y = [0, pos_a[1], pos_b[1], pos_c[1]]
-    leg_h = [0, pos_a[2], pos_b[2], pos_c[2]]
+    leg_x, leg_y, leg_h = build_leg(frame, (0, 0, 0))
 
     legplot.set_data(leg_x, leg_y)
     legplot.set_3d_properties(leg_h)

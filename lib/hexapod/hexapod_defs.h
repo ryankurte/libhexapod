@@ -37,7 +37,8 @@ struct hpod_vector_s {
  * This stores the context required to perform hexapod related calculations
  */
 struct hexapod_s {
-    float width;    //!< Width between joints
+    float length;   //!< Hexapod length (between front and rear joints)
+    float width;    //!< Hexapod width between joints
     float offset_a; //!< Distance between planar and vertical shoulder joints
     float len_ab;   //!< Length of upper leg (femur)
     float len_bc;   //!< Length of foreleg
