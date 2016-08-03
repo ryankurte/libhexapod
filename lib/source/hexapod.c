@@ -125,23 +125,69 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
  * alpha is the body roll, beta is body pitch
  * X direction is outwards from the hexapod, Y is forwards and backward
  * H is body height from zero (sitting on XY plane)
+ *
+ *    Roll Compensation
+ *
+ *     World Frame  Local Frame        
+ *       A -            A       
+ *      /|             /\         
+ *     / | Z          /  \         
+ *    /  |           /   _\D    
+ *   /___| -        /_---       
+ *   B   C          B             
+ *   | X |                        
+ *
+ *    
+ *    Pitch Compensation
+ *
+ *    World Frame  Local Frame        
+ *       E -            E       
+ *      /|             /\         
+ *     / | Z          /  \         
+ *    /  |           /   _\H    
+ *   /___| -        /_---       
+ *   F   G          F             
+ *   | Y |                     
+ *
  */
-void HPOD_body_transform(struct hexapod_s* hexapod, float alpha, float beta, int offset_x, int offset_y,
+void HPOD_body_transform(struct hexapod_s* hexapod, float roll, float pitch, int offset_x, int offset_y,
                          float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
 {
-    // Calculate change in Z (height) for angle beta (pitch) for a given joint
-    float shifted_z = z + offset_y * sin(beta);
+    // Calculate change in Z (height) for body pitch at a given joint
+    float world_z = z - offset_y * sin(pitch);
 
-    // Convert world heights to hexapod local heights (wrt. body frame)
-    *joint_z = shifted_z / cos(beta);
+    // Calculate shared length for world and local frame
+    float len_ef = sqrt(pow(y, 2) + pow(world_z, 2));
 
-    // Calculate changes in X and Y for angle alpha (roll) for a given joint
-    float w_x = offset_x / 2 * cos(alpha);
-    float w_y = offset_x / 2 * sin(alpha);
+    // Calculate the require angle in the world frame
+    float angle_feg = atan(y / world_z);
+
+    // Calculate required angle in the local frame so that adb = pi/2
+    float angle_feh = angle_feg + pitch;
+
+    // Calculate local space lengths
+    float len_eh = cos(angle_feh) * len_ef;     // Local Z
+    float len_fh = sin(angle_feh) * len_ef;     // Local Y
+
+    // Calculate changes in X and Y for body roll for a given joint
+    //float w_x = offset_x / 2 * cos(roll);
+    //float w_y = offset_x / 2 * sin(roll);
 
     // Shift X and Y locations by body width in local frame
-    *joint_x = (x - w_x);
-    *joint_y = (y - w_y);
+    *joint_x = x;
+    *joint_y = len_fh;
+    *joint_z = len_eh;
+}
+
+void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
+                         float xy, float z, float* adj_xy, float* adj_z)
+{
+    // Calculate change in Z (height) for body pitch at a given joint
+    float shifted_z = z + offset * sin(angle);
+
+    // Convert world heights to hexapod local heights (wrt. body frame)
+    *adj_z = z + offset * sin(angle);
+    *adj_xy = xy + offset / cos(angle) - offset;
 }
 
 
