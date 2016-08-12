@@ -118,7 +118,7 @@ void HPOD_body_transform(struct hexapod_s* hexapod, float alpha, float beta, int
                          float x, float y, float z, float* joint_x, float* joint_y, float* joint_z);
 
 
-TEST_F(HexTest, BodyTransformPitch)
+TEST_F(HexTest, BodyTransformNeutral)
 {
     float x, y, h, roll, pitch, _x, _y, _h;
 
@@ -128,8 +128,11 @@ TEST_F(HexTest, BodyTransformPitch)
     ASSERT_NEAR(x, _x, FLOAT_ERROR);
     ASSERT_NEAR(y, _y, FLOAT_ERROR);
     ASSERT_NEAR(h, _h, FLOAT_ERROR);
+}
 
-    // Pitch tests
+TEST_F(HexTest, BodyTransformPitch)
+{
+    float x, y, h, roll, pitch, _x, _y, _h;
 
     // H and Y change with pitch where Y is zero
     roll = 0.0; pitch = M_PI / 8; x = 10; y = 0; h = 30;
@@ -144,7 +147,7 @@ TEST_F(HexTest, BodyTransformPitch)
     HPOD_body_transform(&hexy, roll, pitch, 0, offset_y, x, y, h, &_x, &_y, &_h);
     ASSERT_NEAR(x, _x, FLOAT_ERROR);
     ASSERT_NEAR((h - sin(pitch) * offset_y) * sin(pitch), _y, FLOAT_ERROR);
-    ASSERT_NEAR((h - sin(pitch) * offset_y) * cos(pitch), _h, 1.0);
+    ASSERT_NEAR((h - sin(pitch) * offset_y) * cos(pitch), _h, FLOAT_ERROR);
 
     // H and Y change where Y is non-zero with no offset
     roll = 0.0; pitch = M_PI / 8; x = 10; y = 10; h = 30;
@@ -158,15 +161,6 @@ TEST_F(HexTest, BodyTransformRoll)
 {
     float x, y, h, roll, pitch, _x, _y, _h;
 
-    // No change with no angle
-    roll = 0.0; pitch = 0.0; x = 10; y = 20; h = 30;
-    HPOD_body_transform(&hexy, roll, pitch, 0, 0, x, y, h, &_x, &_y, &_h);
-    ASSERT_NEAR(x, _x, FLOAT_ERROR);
-    ASSERT_NEAR(y, _y, FLOAT_ERROR);
-    ASSERT_NEAR(h, _h, FLOAT_ERROR);
-
-    // Roll tests
-
     // H and X change with roll where X is zero
     roll = M_PI / 8; pitch = 0.0; x = 0; y = 10; h = 30;
     HPOD_body_transform(&hexy, roll, pitch, 0, 0, x, y, h, &_x, &_y, &_h);
@@ -174,7 +168,33 @@ TEST_F(HexTest, BodyTransformRoll)
     ASSERT_NEAR(h * sin(roll), _x, FLOAT_ERROR);
     ASSERT_NEAR(h * cos(roll), _h, FLOAT_ERROR);
 
-#if 0
+    // H changes with pitch and offset X where X is zero
+    roll = M_PI / 8; pitch = 0.0; x = 0; y = 10; h = 30;
+    float offset_x = 30;
+    HPOD_body_transform(&hexy, roll, pitch, offset_x, 0, x, y, h, &_x, &_y, &_h);
+    ASSERT_NEAR(y, _y, FLOAT_ERROR);
+    ASSERT_NEAR((h - sin(roll) * offset_x) * sin(roll), _x, FLOAT_ERROR);
+    ASSERT_NEAR((h - sin(roll) * offset_x) * cos(roll), _h, FLOAT_ERROR);
+
+    // H and Y change where Y is non-zero with no offset
+    roll = M_PI / 8; pitch = 0.0; x = 10; y = 10; h = 30;
+    HPOD_body_transform(&hexy, roll, pitch, 0, 0, x, y, h, &_x, &_y, &_h);
+    ASSERT_NEAR(y, _y, FLOAT_ERROR);
+
+}
+
+
+TEST_F(HexTest, DISABLED_BodyTransformPitchRoll)
+{
+    float x, y, h, roll, pitch, _x, _y, _h;
+
+    // X, Y and H change with roll with zero offsets
+    roll = M_PI / 8; pitch = M_PI / 9; x = 0; y = 10; h = 30;
+    HPOD_body_transform(&hexy, roll, pitch, 0, 0, x, y, h, &_x, &_y, &_h);
+    ASSERT_NEAR(y * sin(pitch), _y, FLOAT_ERROR);
+    ASSERT_NEAR(h * sin(roll), _x, FLOAT_ERROR);
+    ASSERT_NEAR(h * cos(roll) * cos(pitch), _h, FLOAT_ERROR);
+
     // H changes with pitch and offset Y where Y is zero
     roll = 0.0; pitch = M_PI / 8; x = 10; y = 0; h = 30;
     float offset_y = 30;
@@ -187,9 +207,5 @@ TEST_F(HexTest, BodyTransformRoll)
     roll = 0.0; pitch = M_PI / 8; x = 10; y = 10; h = 30;
     HPOD_body_transform(&hexy, roll, pitch, 0, 0, x, y, h, &_x, &_y, &_h);
     ASSERT_NEAR(x, _x, FLOAT_ERROR);
-
-#endif
-
-
-
 }
+

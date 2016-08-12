@@ -150,7 +150,7 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
  *   | Y |                     
  *
  */
-void HPOD_body_transform(struct hexapod_s* hexapod, float roll, float pitch, int offset_x, int offset_y,
+void HPOD_body_transform_pitch(struct hexapod_s* hexapod, float roll, float pitch, int offset_x, int offset_y,
                          float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
 {
     // Calculate change in Z (height) for body pitch at a given joint
@@ -169,15 +169,45 @@ void HPOD_body_transform(struct hexapod_s* hexapod, float roll, float pitch, int
     float len_eh = cos(angle_feh) * len_ef;     // Local Z
     float len_fh = sin(angle_feh) * len_ef;     // Local Y
 
-    // Calculate changes in X and Y for body roll for a given joint
-    //float w_x = offset_x / 2 * cos(roll);
-    //float w_y = offset_x / 2 * sin(roll);
-
     // Shift X and Y locations by body width in local frame
     *joint_x = x;
     *joint_y = len_fh;
     *joint_z = len_eh;
 }
+
+void HPOD_body_transform_roll(struct hexapod_s* hexapod, float roll, float pitch, int offset_x, int offset_y,
+                         float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
+{
+    // Calculate change in Z (height) for body pitch at a given joint
+    float world_z = z - offset_x * sin(roll);
+
+    // Calculate shared length for world and local frame
+    float len_ab = sqrt(pow(x, 2) + pow(world_z, 2));
+
+    // Calculate the require angle in the world frame
+    float angle_bac = atan(x / world_z);
+
+    // Calculate required angle in the local frame so that adb = pi/2
+    float angle_bad = angle_bac + roll;
+
+    // Calculate local space lengths
+    float len_ad = cos(angle_bad) * len_ab;     // Local Z
+    float len_bd = sin(angle_bad) * len_ab;     // Local X
+
+    // Shift X and Y locations by body width in local frame
+    *joint_x = len_bd;
+    *joint_y = y;
+    *joint_z = len_ad;
+}
+
+void HPOD_body_transform(struct hexapod_s* hexapod, float roll, float pitch, int offset_x, int offset_y,
+                         float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
+{
+    float _joint_x, _joint_y, _joint_z;
+    HPOD_body_transform_pitch(hexapod, roll, pitch, offset_x, offset_y, x, y, z, &_joint_x, &_joint_y, &_joint_z);
+    HPOD_body_transform_roll(hexapod, roll, pitch, offset_x, offset_y, _joint_x, _joint_y, _joint_z, joint_x, joint_y, joint_z);
+}
+
 
 void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
                          float xy, float z, float* adj_xy, float* adj_z)
