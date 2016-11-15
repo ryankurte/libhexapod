@@ -225,7 +225,7 @@ void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
  * Calculate the position of a limb for a provided gait with specified motion at a given walking phase
  * Phase is -1 to 1, with contact between -0.5 and 0.5 to help merge movements.
  */
-void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector_s *movement,
+void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector3_s *movement,
                     float phase_scl, float* x, float* y, float* h)
 {
 
@@ -233,17 +233,17 @@ void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct 
     float phase_rads = HPOD_SCL_TO_RAD(phase_scl_wrapped);
 
     // Forward walk
-    *x = sin(phase_rads) * gait->movement_width * movement->x + gait->offset_width;
-    *y = sin(phase_rads) * gait->movement_length * movement->y;
+    *x = sin(phase_rads) * gait->movement.x * movement->x + gait->offset.y;
+    *y = sin(phase_rads) * gait->movement.y * movement->y;
 
     // Height morphing determined by height_scale as a fraction of the phase for the height to change over
     if (fabs(phase_scl_wrapped) > (0.5 + gait->height_scale / 2)) {
-        *h = -gait->movement_height / 2 + gait->offset_height;
+        *h = -gait->movement.z / 2 + gait->offset.z;
     } else if (fabs(phase_scl_wrapped) < (0.5 - gait->height_scale / 2)) {
-        *h = gait->movement_height / 2 + gait->offset_height;
+        *h = gait->movement.z / 2 + gait->offset.z;
     } else {
         *h = cos((phase_scl_wrapped - gait->height_scale / 2) / gait->height_scale * M_PI)
-             * gait->movement_height / 2 + gait->offset_height;
+             * gait->movement.z / 2 + gait->offset.z;
     }
 
     // TODO: how does rotation fit into this?

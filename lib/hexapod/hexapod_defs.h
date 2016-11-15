@@ -17,20 +17,25 @@
 
 #define HPOD_LIMIT_RANGE(min, max, val)   ((val < min) ? min : (val > max) ? max : val)
 
+struct hpod_vector2_s {
+    float x;
+    float y;
+};
+
+struct hpod_vector3_s {
+    float x;
+    float y;
+    float z;
+};
+
 struct hpod_gait_s {
-    float movement_width;
-    float offset_width;
-    float movement_height;
-    float offset_height;
-    float movement_length;
+    struct hpod_vector3_s movement;
+    struct hpod_vector3_s offset;
+
     float height_scale;
 };
 
-struct hpod_vector_s {
-    float x;
-    float y;
-    float r;
-};
+
 
 /**
  * Hexapod object for internal use
