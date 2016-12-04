@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <math.h>
 
+
 void HPOD_init(struct hexapod_s* hexapod, float width, float length, float offset_a, float len_ab, float len_bc)
 {
     hexapod->width = width;

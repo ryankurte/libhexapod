@@ -6,6 +6,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR})
 # Add project sources
 set(LIBHEXAPOD_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/source/hexapod.c
+    ${CMAKE_CURRENT_LIST_DIR}/source/vector.c
 )
 
 # Create library

@@ -4,6 +4,8 @@
 
 #include <math.h>
 
+#include "hexapod/vector.h"
+
 // Helpers for degree <-> radian conversion
 #define HPOD_RAD_TO_DEG(a)          (a * 180 / M_PI)
 #define HPOD_DEG_TO_RAD(a)          (a * M_PI / 180)
@@ -17,16 +19,6 @@
 
 #define HPOD_LIMIT_RANGE(min, max, val)   ((val < min) ? min : (val > max) ? max : val)
 
-struct hpod_vector2_s {
-    float x;
-    float y;
-};
-
-struct hpod_vector3_s {
-    float x;
-    float y;
-    float z;
-};
 
 struct hpod_gait_s {
     struct hpod_vector3_s movement;
@@ -34,8 +26,6 @@ struct hpod_gait_s {
 
     float height_scale;
 };
-
-
 
 /**
  * Hexapod object for internal use
