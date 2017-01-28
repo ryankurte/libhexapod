@@ -20,13 +20,6 @@
 #define HPOD_LIMIT_RANGE(min, max, val)   ((val < min) ? min : (val > max) ? max : val)
 
 
-struct hpod_gait_s {
-    struct hpod_vector3_s movement;
-    struct hpod_vector3_s offset;
-
-    float height_scale;
-};
-
 /**
  * Hexapod object for internal use
  * This stores the context required to perform hexapod related calculations
@@ -38,6 +31,20 @@ struct hexapod_s {
     float len_ab;   //!< Length of upper leg (femur)
     float len_bc;   //!< Length of foreleg
 };
+
+/**
+ * Gait control object
+ */
+struct hpod_gait_s {
+    struct hpod_vector3_s movement;     //!< Defines dimensions of leg movement
+    struct hpod_vector3_s offset;       //!< Defines movement offsets
+    float height_scale;                 //!< Defines leg lift height as a factor of movement height
+};
+
+#define DEFAULT_GAIT { \
+    struct hpod_vector3_s{50.0, 100.0, 10.0}, \
+    struct hpod_vector3_s{0.0, 50.0, 10.0}, \
+    0.05 }
 
 #endif
 
