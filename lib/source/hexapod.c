@@ -246,11 +246,18 @@ void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct 
 
     // Height morphing determined by height_scale as a fraction of the phase for the height to change over
     if (fabs(phase_scl_wrapped) > (0.5 + gait->height_scale / 2)) {
+        // Leg down state
         leg_pos->z = -gait->movement.z / 2 + gait->offset.z;
     } else if (fabs(phase_scl_wrapped) < (0.5 - gait->height_scale / 2)) {
+        // Leg up state
         leg_pos->z = gait->movement.z / 2 + gait->offset.z;
+    } else if (phase_rads < 0) {
+        // Transitioning down state
+        leg_pos->z = cosf((phase_rads - gait->height_scale / 2) / gait->height_scale * M_PI)
+             * gait->movement.z / 2 + gait->offset.z;
     } else {
-        leg_pos->z = cosf((phase_scl_wrapped - gait->height_scale / 2) / gait->height_scale * M_PI)
+        // Transitioning up state
+        leg_pos->z = cosf((phase_rads + gait->height_scale / 2) / gait->height_scale * M_PI)
              * gait->movement.z / 2 + gait->offset.z;
     }
 
