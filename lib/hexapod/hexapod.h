@@ -33,7 +33,7 @@ void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
                          float xy, float z, float* adj_xy, float* adj_z);
 
 void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector3_s *movement,
-                    float phase, struct hpod_vector3_s* pos);
+                    float phase, struct hpod_vector3_s* leg_pos);
 
 #ifdef __cplusplus
 }

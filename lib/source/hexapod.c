@@ -39,12 +39,12 @@ void HPOD_leg_ik2(struct hexapod_s* hexapod, float d, float h, float* alpha, flo
     float len_ac = sqrt(pow(d, 2) + pow(h, 2));
 
     // Calculate rotational offset from zero frame (h = 0)
-    float angle_dh = atan(h / d);
+    float angle_dh = atan2(h,  d);
 
     // Split into two regular triangles & calculate length of shared face
-    float angle_a = acos((pow(len_ac, 2) + pow(hexapod->len_ab, 2) - pow(hexapod->len_bc, 2))
+    float angle_a = acosf((pow(len_ac, 2) + pow(hexapod->len_ab, 2) - pow(hexapod->len_bc, 2))
                          / (2 * len_ac * hexapod->len_ab));
-    float angle_b = acos((pow(hexapod->len_ab, 2) + pow(hexapod->len_bc, 2) - pow(len_ac, 2))
+    float angle_b = acosf((pow(hexapod->len_ab, 2) + pow(hexapod->len_bc, 2) - pow(len_ac, 2))
                          / (2 * hexapod->len_ab * hexapod->len_bc));
 
     // Convert back into world frame
@@ -63,7 +63,7 @@ void HPOD_leg_ik3(struct hexapod_s* hexapod, float x, float y, float h,
 {
     // Calculate distance and angle from origin to point (x, y)
     float len_xy = sqrt(pow(x, 2) + pow(y, 2));
-    float angle_xy = atan(y / x);
+    float angle_xy = atan2(y, x);
 
     // Process ik2 equation with total distance (less offset between joints at A)
     HPOD_leg_ik2(hexapod, len_xy - hexapod->offset_a, h, alpha, beta);
@@ -82,13 +82,13 @@ void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
                  float* x, float* h)
 {
     // Joint B position
-    float b_x = hexapod->len_ab * cos(alpha);
-    float b_h = hexapod->len_ab * sin(alpha);
+    float b_x = hexapod->len_ab * cosf(alpha);
+    float b_h = hexapod->len_ab * sinf(alpha);
 
     // Joint C position
     float world_beta = M_PI - alpha - beta;
-    *x = b_x + hexapod->len_bc * cos(world_beta);
-    *h = b_h - hexapod->len_bc * sin(world_beta);
+    *x = b_x + hexapod->len_bc * cosf(world_beta);
+    *h = b_h - hexapod->len_bc * sinf(world_beta);
 }
 
 
@@ -103,8 +103,8 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
                  float* x, float* y, float* h)
 {
     // Joint A position
-    float a_x = cos(theta) * hexapod->offset_a;
-    float a_y = sin(theta) * hexapod->offset_a;
+    float a_x = cosf(theta) * hexapod->offset_a;
+    float a_y = sinf(theta) * hexapod->offset_a;
     float a_h = 0;
 
     float c_d, c_h;
@@ -113,8 +113,8 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
 
     float len_ac = sqrt(pow(c_d, 2) + pow(c_h, 2));
 
-    *x = a_x + c_d * cos(theta);
-    *y = a_y + c_d * sin(theta);
+    *x = a_x + c_d * cosf(theta);
+    *y = a_y + c_d * sinf(theta);
     *h = c_h;
 }
 
@@ -155,20 +155,20 @@ void HPOD_body_transform_pitch(struct hexapod_s* hexapod, float roll, float pitc
                          float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
 {
     // Calculate change in Z (height) for body pitch at a given joint
-    float world_z = z - offset_y * sin(pitch);
+    float world_z = z - offset_y * sinf(pitch);
 
     // Calculate shared length for world and local frame
     float len_ef = sqrt(pow(y, 2) + pow(world_z, 2));
 
     // Calculate the require angle in the world frame
-    float angle_feg = atan(y / world_z);
+    float angle_feg = atan2(y, world_z);
 
     // Calculate required angle in the local frame so that adb = pi/2
     float angle_feh = angle_feg + pitch;
 
     // Calculate local space lengths
-    float len_eh = cos(angle_feh) * len_ef;     // Local Z
-    float len_fh = sin(angle_feh) * len_ef;     // Local Y
+    float len_eh = cosf(angle_feh) * len_ef;     // Local Z
+    float len_fh = sinf(angle_feh) * len_ef;     // Local Y
 
     // Shift X and Y locations by body width in local frame
     *joint_x = x;
@@ -180,20 +180,20 @@ void HPOD_body_transform_roll(struct hexapod_s* hexapod, float roll, float pitch
                          float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
 {
     // Calculate change in Z (height) for body pitch at a given joint
-    float world_z = z - offset_x * sin(roll);
+    float world_z = z - offset_x * sinf(roll);
 
     // Calculate shared length for world and local frame
     float len_ab = sqrt(pow(x, 2) + pow(world_z, 2));
 
     // Calculate the require angle in the world frame
-    float angle_bac = atan(x / world_z);
+    float angle_bac = atan2(x, world_z);
 
     // Calculate required angle in the local frame so that adb = pi/2
     float angle_bad = angle_bac + roll;
 
     // Calculate local space lengths
-    float len_ad = cos(angle_bad) * len_ab;     // Local Z
-    float len_bd = sin(angle_bad) * len_ab;     // Local X
+    float len_ad = cosf(angle_bad) * len_ab;     // Local Z
+    float len_bd = sinf(angle_bad) * len_ab;     // Local X
 
     // Shift X and Y locations by body width in local frame
     *joint_x = len_bd;
@@ -214,11 +214,11 @@ void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
                          float xy, float z, float* adj_xy, float* adj_z)
 {
     // Calculate change in Z (height) for body pitch at a given joint
-    float shifted_z = z + offset * sin(angle);
+    float shifted_z = z + offset * sinf(angle);
 
     // Convert world heights to hexapod local heights (wrt. body frame)
-    *adj_z = z + offset * sin(angle);
-    *adj_xy = xy + offset / cos(angle) - offset;
+    *adj_z = z + offset * sinf(angle);
+    *adj_xy = xy + offset / cosf(angle) - offset;
 }
 
 
@@ -227,23 +227,23 @@ void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
  * Phase is -1 to 1, with contact between -0.5 and 0.5 to help merge movements.
  */
 void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector3_s *movement,
-                    float phase_scl, hpod_vector3_t* pos)
+                    float phase_scl, hpod_vector3_t* leg_pos)
 {
 
     float phase_scl_wrapped = HPOD_WRAP_SCL(phase_scl);
     float phase_rads = HPOD_SCL_TO_RAD(phase_scl_wrapped);
 
     // Forward walk
-    pos->x = sin(phase_rads) * gait->movement.x * movement->x + gait->offset.y;
-    pos->y = sin(phase_rads) * gait->movement.y * movement->y;
+    leg_pos->x = sinf(phase_rads) * gait->movement.x * movement->x + gait->offset.y;
+    leg_pos->y = sinf(phase_rads) * gait->movement.y * movement->y;
 
     // Height morphing determined by height_scale as a fraction of the phase for the height to change over
     if (fabs(phase_scl_wrapped) > (0.5 + gait->height_scale / 2)) {
-        pos->z = -gait->movement.z / 2 + gait->offset.z;
+        leg_pos->z = -gait->movement.z / 2 + gait->offset.z;
     } else if (fabs(phase_scl_wrapped) < (0.5 - gait->height_scale / 2)) {
-        pos->z = gait->movement.z / 2 + gait->offset.z;
+        leg_pos->z = gait->movement.z / 2 + gait->offset.z;
     } else {
-        pos->z = cos((phase_scl_wrapped - gait->height_scale / 2) / gait->height_scale * M_PI)
+        leg_pos->z = cosf((phase_scl_wrapped - gait->height_scale / 2) / gait->height_scale * M_PI)
              * gait->movement.z / 2 + gait->offset.z;
     }
 
