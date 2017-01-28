@@ -39,7 +39,7 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
                   struct hpod_vector3_s *end_pos);
 
 void HPOD_body_transform(struct hexapod_s* hexapod, float alpha, float beta, int offset_x, int offset_y,
-                         float x, float y, float z, float* joint_x, float* joint_y, float* joint_z);
+                         struct hpod_vector3_s *world_pos, struct hpod_vector3_s *joint_pos);
 
 void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
                          float xy, float z, float* adj_xy, float* adj_z);

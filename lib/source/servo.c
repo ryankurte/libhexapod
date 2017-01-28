@@ -26,9 +26,9 @@ void HPOD_servo_init(struct hpod_servo_s *servo, float range_rads, int output_ra
 }
 
 /**
- * @brief Mix servo outputs from an input angle
+ * @brief Scale servo outputs from an input angle
  */
-int HPOD_servo_mix(struct hpod_servo_s *servo, float angle)
+int HPOD_servo_scale(struct hpod_servo_s *servo, float angle)
 {
     float limited_angle = SERVO_LIMIT_RANGE(-servo->range_rads, servo->range_rads, angle);
 
@@ -37,3 +37,14 @@ int HPOD_servo_mix(struct hpod_servo_s *servo, float angle)
     return output;
 }
 
+/**
+ * @brief Mix all servo angles to servo outputs
+ */
+void HPOD_servo_mix(struct hpod_servo_s *servo, float in[6][3], int out[6][3])
+{
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 3; j++) {
+            out[i][j] = HPOD_servo_scale(servo, in[i][j]);
+        }
+    }
+}

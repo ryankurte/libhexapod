@@ -36,31 +36,31 @@ TEST_F(ServoTest, Center)
 {
     int output;
 
-    output = HPOD_servo_mix(&servo, 0);
+    output = HPOD_servo_scale(&servo, 0);
     ASSERT_EQ(output, output_offset);
 }
 
 TEST_F(ServoTest, FullLeft)
 {
-    int output = HPOD_servo_mix(&servo, M_PI / 2);
+    int output = HPOD_servo_scale(&servo, M_PI / 2);
     ASSERT_EQ(output, 1024);
 }
 
 TEST_F(ServoTest, FullRight)
 {
-    int output = HPOD_servo_mix(&servo, -M_PI / 2);
+    int output = HPOD_servo_scale(&servo, -M_PI / 2);
     ASSERT_EQ(output, 0);
 }
 
 TEST_F(ServoTest, HalfLeft)
 {
-    int output = HPOD_servo_mix(&servo, M_PI / 4);
+    int output = HPOD_servo_scale(&servo, M_PI / 4);
     ASSERT_EQ(output, 768);
 }
 
 TEST_F(ServoTest, HalfRight)
 {
-    int output = HPOD_servo_mix(&servo, -M_PI / 4);
+    int output = HPOD_servo_scale(&servo, -M_PI / 4);
     ASSERT_EQ(output, 256);
 }
 

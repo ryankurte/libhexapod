@@ -22,6 +22,10 @@ extern "C" {
  * @{
  */
 
+/**
+ * @brief Servo description structure
+ * Used to map angle outputs to servo ranges
+ */
 struct hpod_servo_s {
     float range_rads;   //!< Servo range in radians
     int output_range;   //!< Servo output range (ie. 1024 maximum)
@@ -30,7 +34,8 @@ struct hpod_servo_s {
 };
 
 void HPOD_servo_init(struct hpod_servo_s *servo, float range_rads, int output_range, int output_offset);
-int HPOD_servo_mix(struct hpod_servo_s *servo, float angle);
+int HPOD_servo_scale(struct hpod_servo_s *servo, float angle);
+void HPOD_servo_mix(struct hpod_servo_s *servo, float in[6][3], int out[6][3]);
 
 /** @}*/
 
