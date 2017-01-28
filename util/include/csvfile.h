@@ -17,8 +17,7 @@ extern "C" {
 
 #include "util.h"
 
-void write_file(const char* name, int count, float* indicies, 
-    float targets[][NUM_SLICES_MAX], float angles[][NUM_SLICES_MAX], float actuals[][NUM_SLICES_MAX]);
+void write_file(const char* name, int count, float data[NUM_SLICES_MAX][10]);
 
 #ifdef __cplusplus
 }

@@ -17,7 +17,13 @@ parser.add_argument('--filename', default="output.csv",
 args = parser.parse_args()
 
 # Load files
-data = numpy.genfromtxt(args.filename, delimiter=", ")
+rawdata = numpy.genfromtxt(args.filename, delimiter=", ", dtype=None, unpack=True)
+
+lines = int(len(rawdata) - 1)
+cols = int(lines / 3)
+rows = int(lines / cols)
+
+print("Loaded {} lines for {} rows and {} columns".format(lines, rows, cols))
 
 # Setup figure
 fig1 = plt.figure()
@@ -25,23 +31,14 @@ fig1.canvas.set_window_title('Hexapod Library Output Test')
 plt.subplots_adjust(hspace=.5, bottom=0.05)
 
 # Create a plot instance
-def add_plot(num, name, scale, data):
-    ax1 = fig1.add_subplot(num)
-    ax1.plot(scale, data, 'r-')
+def add_plot(x, y, i, scale, name, data):
+    ax1 = fig1.add_subplot(x, y, i)
+    ax1.plot(scale, data)
     ax1.title.set_text(name)
 
-# Create individual plots
-add_plot(331, 'Target X (left/right)', data[0], data[1])
-add_plot(334, 'Target Y (forward/back)', data[0], data[2])
-add_plot(337, 'Target Z (up/down)', data[0], data[3])
-
-add_plot(332, 'Leg Alpha', data[0], data[4])
-add_plot(335, 'Leg Beta', data[0], data[5])
-add_plot(338, 'Leg Theta', data[0], data[6])
-
-add_plot(333, 'Actual X (left/right)', data[0], data[7])
-add_plot(336, 'Actual Y (forward/back)', data[0], data[8])
-add_plot(339, 'Actual Z (up/down)', data[0], data[9])
+# Render all lines
+for i in range(0, lines):
+    add_plot(rows, cols, i+1, rawdata[0][1:], rawdata[i+1][0].decode('UTF-8'), rawdata[i+1][1:])
 
 # Render plot
 plt.show();

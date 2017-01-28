@@ -27,39 +27,39 @@ int main(int argc, char **argv)
     HPOD_init(&hexy, &config.hexapod);
 
     // Output data
-    float indicies[NUM_SLICES_MAX];
-    float targets[3][NUM_SLICES_MAX];
-    float angles[3][NUM_SLICES_MAX];
-    float actuals[3][NUM_SLICES_MAX];
-
+    float data[NUM_SLICES_MAX][10];
     // Calculate position of every slice
     for (int i = 0; i < config.slices; i++) {
         float phase = i / (((float)config.slices - 1) / 2) - 1.0;
-        indicies[i] = phase;
+        data[i][0] = phase;
 
         // Calculate leg position for a given gait
         struct hpod_vector3_s position;
         HPOD_gait_calc(&hexy, &config.gait, &config.movement, phase, &position);
 
         // Save leg positions
-        targets[0][i] = position.x;
-        targets[1][i] = position.y;
-        targets[2][i] = position.z;
+        data[i][1] = position.x;
+        data[i][2] = position.y;
+        data[i][3] = position.z;
 
         // Calculate servo control
-        HPOD_leg_ik3(&hexy, &position,
-                     &angles[0][i], &angles[1][i], &angles[2][i]);
+        float alpha, beta, theta;
+        HPOD_leg_ik3(&hexy, &position, &alpha, &beta, &theta);
+
+        data[i][4] = alpha;
+        data[i][5] = beta;
+        data[i][6] = theta;
 
         // Calculate control inverse
         struct hpod_vector3_s actual;
-        HPOD_leg_fk3(&hexy, angles[0][i], angles[1][i], angles[2][i], &actual);
-        actuals[0][i] = actual.x;
-        actuals[1][i] = actual.y;
-        actuals[2][i] = actual.z;
+        HPOD_leg_fk3(&hexy, alpha, beta, theta, &actual);
+        data[i][7] = actual.x;
+        data[i][8] = actual.y;
+        data[i][9] = actual.z;
     }
 
     // Write outputs
-    write_file("output.csv", config.slices, indicies, targets, angles, actuals);
+    write_file("output.csv", config.slices, data);
 
     return 0;
 }
