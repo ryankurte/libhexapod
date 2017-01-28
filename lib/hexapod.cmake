@@ -1,4 +1,6 @@
-# Libhexapod include file
+# Libhexapod cmake include file
+# https://github.com/ryankurte/libhexapod
+# Copyright 2017 Ryan Kurte
 
 # Add library includes
 include_directories(${CMAKE_CURRENT_LIST_DIR})

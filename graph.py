@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # Helper to graph outputs from hex-util for diagnostic purposes
+#
+# https://github.com/ryankurte/libhexapod
 # Copyright 2017 Ryan Kurte
 
 import sys

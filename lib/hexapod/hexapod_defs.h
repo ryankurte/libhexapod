@@ -1,3 +1,10 @@
+/**
+ * Libhexapod
+ * Hexapod definitions
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #ifndef HEXAPOD_DEFS_H
 #define HEXAPOD_DEFS_H
@@ -18,7 +25,6 @@
 #define HPOD_WRAP_SCL(a)            fmod(a, 1.0)
 #define HPOD_LIMIT_RANGE(min, max, val)   ((val < min) ? min : (val > max) ? max : val)
 
-
 /**
  * Hexapod config object
  * This is used to configure the hexapod dimensions
@@ -31,6 +37,7 @@ struct hexapod_config_s {
     float len_bc;   //!< Length of foreleg
 };
 
+// Default hexapod config for testing / convenience purposes
 #define HPOD_DEFAULT_CONFIG {100, 100, 20, 100, 120}
 
 /**

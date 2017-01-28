@@ -1,3 +1,10 @@
+/**
+ * Libhexapod
+ * Hexapod core
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #include "hexapod/hexapod.h"
 

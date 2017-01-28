@@ -1,4 +1,6 @@
-
+# Hexapod build file
+# https://github.com/ryankurte/libhexapod
+# Copyright 2017 Ryan Kurte
 
 # Set minimum CMake version
 cmake_minimum_required(VERSION 2.8.4)

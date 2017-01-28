@@ -1,3 +1,11 @@
+/**
+ * Libhexapod
+ * Hexapod utility
+ * This runs the hexapod library and writes outputs to a csv for analysis
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #include <stdio.h>
 #include <stdint.h>

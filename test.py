@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # Hexapod walking algorithm test and animation
 # Displays output of walking algorithm, this should be reimplemented using libhexapod c bindings
+#
+# https://github.com/ryankurte/libhexapod
 # Copyright 2017 Ryan Kurte
 
 import math

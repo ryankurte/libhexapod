@@ -1,10 +1,16 @@
-
+/**
+ * Libhexapod
+ * Hexapod Unit Tests
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #include "gtest/gtest.h"
 
-#include "hexapod/hexapod.h"
-
 #include <stdio.h>
+
+#include "hexapod/hexapod.h"
 
 class HexTest : public ::testing::Test
 {

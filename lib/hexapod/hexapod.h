@@ -1,4 +1,10 @@
-
+/**
+ * Libhexapod
+ * Hexapod core interfaces
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #ifndef HEXAPOD_H
 #define HEXAPOD_H

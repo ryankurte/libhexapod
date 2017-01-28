@@ -1,3 +1,10 @@
+/**
+ * Libhexapod
+ * Hexapod utility helpers
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #include "util.h"
 

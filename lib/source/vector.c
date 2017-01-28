@@ -1,3 +1,10 @@
+/**
+ * Libhexapod
+ * Hexapod vector implementation
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #include "hexapod/vector.h"
 

@@ -11,8 +11,8 @@ Include [lib/hexapod.cmake](lib/hexapod.cmake) in your CMake project to build th
 - cmake
 - make
 - gcc (or clang)
-- python3 (with numpy, matplotlib)
 
+Development also requires python3 with numpy and matplotlib.
 
 ## Development
 
@@ -24,3 +24,8 @@ Include [lib/hexapod.cmake](lib/hexapod.cmake) in your CMake project to build th
 6. `./hex-test` to run unit tests
 7. `./hex-util` to generate output files
 8. `../graph.py` to render output files
+
+
+------
+
+If you have any questions, comments, or suggestions, feel free to open an issue or a pull request.

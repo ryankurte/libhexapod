@@ -1,3 +1,10 @@
+/**
+ * Libhexapod
+ * Hexapod Utility CSV writer
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #ifndef HEXAPOD_UTIL_FILE_H
 #define HEXAPOD_UTIL_FILE_H

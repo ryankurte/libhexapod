@@ -1,3 +1,10 @@
+/**
+ * Libhexapod
+ * Hexapod utility definitions
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #ifndef HPOD_UTIL_H
 #define HPOD_UTIL_H

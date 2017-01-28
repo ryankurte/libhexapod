@@ -1,4 +1,10 @@
-
+/**
+ * Libhexapod
+ * Vector definitions for hexapod library use
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #ifndef HEXAPOD_VECTOR_H
 #define HEXAPOD_VECTOR_H

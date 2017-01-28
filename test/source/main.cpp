@@ -1,3 +1,10 @@
+/**
+ * Libhexapod
+ * Hexapod Test Main
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #include "gtest/gtest.h"
 

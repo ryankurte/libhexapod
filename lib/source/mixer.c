@@ -1,3 +1,10 @@
+/**
+ * Libhexapod
+ * Hexapod mixer
+ *
+ * https://github.com/ryankurte/libhexapod
+ * Copyright 2017 Ryan Kurte
+ */
 
 #include <stdint.h>
 #include <math.h>
