@@ -13,6 +13,13 @@
 #include <math.h>
 #include <stdio.h>
 
+// Hexapod leg offset instance
+struct leg_offset_s leg_offsets[6] = {
+    {  1, -1,  1 }, { -1, 1,  1 },
+    { -1, -1,  0 }, {  1, 1,  0 },
+    {  1, -1, -1 }, { -1, 1, -1 }
+};
+
 /**
  * @brief Initialise the hexapod instance
  */
@@ -54,9 +61,9 @@ void HPOD_leg_ik2(struct hexapod_s* hexapod, float d, float h, float* alpha, flo
 
     // Split into two regular triangles & calculate length of shared face
     float angle_a = acosf((pow(len_ac, 2) + pow(hexapod->config.len_ab, 2) - pow(hexapod->config.len_bc, 2))
-                         / (2 * len_ac * hexapod->config.len_ab));
+                          / (2 * len_ac * hexapod->config.len_ab));
     float angle_b = acosf((pow(hexapod->config.len_ab, 2) + pow(hexapod->config.len_bc, 2) - pow(len_ac, 2))
-                         / (2 * hexapod->config.len_ab * hexapod->config.len_bc));
+                          / (2 * hexapod->config.len_ab * hexapod->config.len_bc));
 
     // Convert back into world frame
     *alpha = angle_a + angle_dh;
@@ -90,7 +97,7 @@ void HPOD_leg_ik3(struct hexapod_s* hexapod, struct hpod_vector3_s *end_pos,
  * H is offset from zero (in line) position
  */
 void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
-                 float* x, float* h)
+                  float* x, float* h)
 {
     // Joint B position
     float b_x = hexapod->config.len_ab * cosf(alpha);
@@ -111,7 +118,7 @@ void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
  * Y is forwards and backward
  */
 void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float theta,
-                 struct hpod_vector3_s *end_pos)
+                  struct hpod_vector3_s *end_pos)
 {
     // Joint A position
     float a_x = cosf(theta) * hexapod->config.offset_a;
@@ -140,30 +147,30 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
  *
  *    Roll Compensation
  *
- *     World Frame  Local Frame        
- *       A -            A       
- *      /|             /\         
- *     / | Z          /  \         
- *    /  |           /   _\D    
- *   /___| -        /_---       
- *   B   C          B             
- *   | X |                        
+ *     World Frame  Local Frame
+ *       A -            A
+ *      /|             /\
+ *     / | Z          /  \
+ *    /  |           /   _\D
+ *   /___| -        /_---
+ *   B   C          B
+ *   | X |
  *
- *    
+ *
  *    Pitch Compensation
  *
- *    World Frame  Local Frame        
- *       E -            E       
- *      /|             /\         
- *     / | Z          /  \         
- *    /  |           /   _\H    
- *   /___| -        /_---       
- *   F   G          F             
- *   | Y |                     
+ *    World Frame  Local Frame
+ *       E -            E
+ *      /|             /\
+ *     / | Z          /  \
+ *    /  |           /   _\H
+ *   /___| -        /_---
+ *   F   G          F
+ *   | Y |
  *
  */
 void HPOD_body_transform_pitch(struct hexapod_s* hexapod, float roll, float pitch, int offset_x, int offset_y,
-                         float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
+                               float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
 {
     // Calculate change in Z (height) for body pitch at a given joint
     float world_z = z - offset_y * sinf(pitch);
@@ -189,10 +196,10 @@ void HPOD_body_transform_pitch(struct hexapod_s* hexapod, float roll, float pitc
 
 /**
  * @brief Body to joint space roll translation
- * 
+ *
  */
 void HPOD_body_transform_roll(struct hexapod_s* hexapod, float roll, float pitch, int offset_x, int offset_y,
-                         float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
+                              float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
 {
     // Calculate change in Z (height) for body pitch at a given joint
     float world_z = z - offset_x * sinf(roll);
@@ -230,10 +237,10 @@ void HPOD_body_transform(struct hexapod_s* hexapod, float roll, float pitch, int
 
 /**
  * @brief I can't remember what I wrote this for :-/
- * 
+ *
  */
 void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
-                         float xy, float z, float* adj_xy, float* adj_z)
+                           float xy, float z, float* adj_xy, float* adj_z)
 {
     // Calculate change in Z (height) for body pitch at a given joint
     float shifted_z = z + offset * sinf(angle);
@@ -269,15 +276,33 @@ void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct 
     } else if (phase_rads < 0) {
         // Transitioning down state
         leg_pos->z = cosf((phase_rads - gait->height_scale / 2) / gait->height_scale * M_PI)
-             * gait->movement.z / 2 + gait->offset.z;
+                     * gait->movement.z / 2 + gait->offset.z;
     } else {
         // Transitioning up state
         leg_pos->z = cosf((phase_rads + gait->height_scale / 2) / gait->height_scale * M_PI)
-             * gait->movement.z / 2 + gait->offset.z;
+                     * gait->movement.z / 2 + gait->offset.z;
     }
 
     // TODO: how do I integrate rotation into this?
 }
 
+
+void HPOD_output_mix(struct hexapod_s *hexapod, struct hpod_gait_s *gait, struct hpod_vector3_s *movement,
+                     float phase_scl, float outputs[6][3])
+{
+    // Calculate the position of each leg
+    for (int i = 0; i < 6; i++) {
+
+        //Calculate Gait position
+        struct hpod_vector3_s position;
+        HPOD_gait_calc(hexapod, gait, movement, phase_scl * leg_offsets[i].phase, &position);
+
+        // TODO: Transform based on body position
+
+        // Calculate servo control for each leg
+        HPOD_leg_ik3(hexapod, &position, &outputs[i][0], &outputs[i][1], &outputs[i][2]);
+    }
+
+}
 
 

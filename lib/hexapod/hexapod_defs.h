@@ -14,6 +14,11 @@
 
 #include "hexapod/vector.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /** \defgroup Definitions
  * @brief Definitions used in libhexapod
  * @{
@@ -68,6 +73,25 @@ struct hpod_gait_s {
 #define HPOD_DEFAULT_OFFSET {0.0, 50.0, 10.0}
 #define HPOD_DEFAULT_HEIGHT_SCALE 0.05
 #define HPOD_DEFAULT_GAIT {HPOD_DEFAULT_MOVEMENT, HPOD_DEFAULT_OFFSET, HPOD_DEFAULT_HEIGHT_SCALE}
+
+/**
+ * Leg offset structure
+ * Used for computation of leg offsets in output calculation
+ */
+struct leg_offset_s {
+    int phase;
+    int x;
+    int y;
+};
+
+// Leg location multipliers
+// Phase modifier, X offset, Y offset
+extern struct leg_offset_s leg_offsets[6];
+
+#ifdef __cplusplus
+}
+#endif
+
 
 /** @}*/
 

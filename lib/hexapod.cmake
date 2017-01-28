@@ -9,6 +9,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR})
 set(LIBHEXAPOD_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/source/hexapod.c
     ${CMAKE_CURRENT_LIST_DIR}/source/vector.c
+    ${CMAKE_CURRENT_LIST_DIR}/source/servo.c
 )
 
 # Create library

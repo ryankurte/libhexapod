@@ -31,7 +31,8 @@ include_directories(${PROJECT_SOURCE_DIR}/util/include)
 # Add project sources
 set(TEST_SOURCES
     ${PROJECT_SOURCE_DIR}/test/source/main.cpp
-    ${PROJECT_SOURCE_DIR}/test/source/HexTest.cpp
+    ${PROJECT_SOURCE_DIR}/test/source/coretest.cpp
+    ${PROJECT_SOURCE_DIR}/test/source/servotest.cpp
 )
 
 set(UTIL_SOURCES
