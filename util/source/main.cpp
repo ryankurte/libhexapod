@@ -46,7 +46,6 @@ int main(int argc, char **argv)
     movement.z = 0;
 
     float indicies[NUM_SLICES];
-
     float targets[3][NUM_SLICES];
     float angles[3][NUM_SLICES];
     float actuals[3][NUM_SLICES];
@@ -83,11 +82,11 @@ int main(int argc, char **argv)
     write_line(fp, "Y_TARGETS", NUM_SLICES, targets[1]);
     write_line(fp, "Z_TARGETS", NUM_SLICES, targets[2]);
     write_line(fp, "LEG_ALPHA", NUM_SLICES, angles[0]);
-    write_line(fp, "LEG_BETA", NUM_SLICES, angles[1]);
+    write_line(fp, "LEG_BETA",  NUM_SLICES, angles[1]);
     write_line(fp, "LEG_THETA", NUM_SLICES, angles[2]);
-    write_line(fp, "X_ACTUAL", NUM_SLICES, actuals[0]);
-    write_line(fp, "Y_ACUAL", NUM_SLICES, actuals[1]);
-    write_line(fp, "Z_ACTUAL", NUM_SLICES, actuals[2]);
+    write_line(fp, "X_ACTUAL",  NUM_SLICES, actuals[0]);
+    write_line(fp, "Y_ACUAL",   NUM_SLICES, actuals[1]);
+    write_line(fp, "Z_ACTUAL",  NUM_SLICES, actuals[2]);
 
     // Close file
     fclose(fp);

@@ -13,8 +13,8 @@
 // Helpers for scalar <-> radian conversion
 // Scalar ranges from -1 to 1 are used to represent angles to simplify floating point
 // methods and reduce error where possible
-#define HPOD_RAD_TO_SCL(a)          (a / M_PI)
-#define HPOD_SCL_TO_RAD(a)          (a * M_PI)
+#define HPOD_RAD_TO_SCL(a)          (a / (float)M_PI)
+#define HPOD_SCL_TO_RAD(a)          (a * (float)M_PI)
 #define HPOD_WRAP_SCL(a)            ((a >= 0.0) ? fmod(a, 1.0) : -fmod(a, 1.0))
 
 #define HPOD_LIMIT_RANGE(min, max, val)   ((val < min) ? min : (val > max) ? max : val)
