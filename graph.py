@@ -19,10 +19,10 @@ args = parser.parse_args()
 # Load files
 rawdata = numpy.genfromtxt(args.filename, delimiter=", ", dtype=None, unpack=True)
 
+# Calculate layout (only works for multiples of 3N + 1)
 lines = int(len(rawdata) - 1)
 cols = int(lines / 3)
 rows = int(lines / cols)
-
 print("Loaded {} lines for {} rows and {} columns".format(lines, rows, cols))
 
 # Setup figure
@@ -37,8 +37,10 @@ def add_plot(x, y, i, scale, name, data):
     ax1.title.set_text(name)
 
 # Render all lines
-for i in range(0, lines):
-    add_plot(rows, cols, i+1, rawdata[0][1:], rawdata[i+1][0].decode('UTF-8'), rawdata[i+1][1:])
+for r in range(0, rows):
+    for c in range(0, cols):
+        i = r * cols + c;
+        add_plot(rows, cols, r + c * rows + 1, rawdata[0][1:], rawdata[i+1][0].decode('UTF-8'), rawdata[i+1][1:])
 
 # Render plot
 plt.show();
