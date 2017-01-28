@@ -1,6 +1,7 @@
 /**
  * Libhexapod
- * Hexapod c++ wrapper
+ * @file
+ * @brief Hexapod c++ wrapper
  *
  * https://github.com/ryankurte/libhexapod
  * Copyright 2017 Ryan Kurte
@@ -11,6 +12,14 @@
 
 #include "hexapod/hexapod.h"
 
+/** \defgroup Wrapper
+ * @brief C++ Wrapper for libhexapod
+ * @{
+ */
+
+/**
+ * @brief Hexapod wrapper class
+ */
 class Hexapod
 {
 public:
@@ -39,5 +48,7 @@ public:
 private:
     struct hexapod_s hexapod;
 };
+
+/** @}*/
 
 #endif

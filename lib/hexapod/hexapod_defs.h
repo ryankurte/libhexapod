@@ -1,6 +1,7 @@
 /**
  * Libhexapod
- * Hexapod definitions
+ * @file
+ * @brief Hexapod definitions
  *
  * https://github.com/ryankurte/libhexapod
  * Copyright 2017 Ryan Kurte
@@ -12,6 +13,11 @@
 #include <math.h>
 
 #include "hexapod/vector.h"
+
+/** \defgroup Definitions
+ * @brief Definitions used in libhexapod
+ * @{
+ */
 
 // Helpers for degree <-> radian conversion
 #define HPOD_RAD_TO_DEG(a)          (a * 180 / M_PI)
@@ -62,6 +68,8 @@ struct hpod_gait_s {
 #define HPOD_DEFAULT_OFFSET {0.0, 50.0, 10.0}
 #define HPOD_DEFAULT_HEIGHT_SCALE 0.05
 #define HPOD_DEFAULT_GAIT {HPOD_DEFAULT_MOVEMENT, HPOD_DEFAULT_OFFSET, HPOD_DEFAULT_HEIGHT_SCALE}
+
+/** @}*/
 
 #endif
 

@@ -1,6 +1,7 @@
 /**
  * Libhexapod
- * Hexapod core interfaces
+ * @file
+ * @brief Hexapod core interfaces
  *
  * https://github.com/ryankurte/libhexapod
  * Copyright 2017 Ryan Kurte
@@ -18,6 +19,11 @@ extern "C" {
 
 #include "hexapod/hexapod_defs.h"
 #include "hexapod/vector.h"
+
+/** \defgroup Core
+ * @brief Hexapod core functions
+ * @{
+ */
 
 void HPOD_init(struct hexapod_s* hexapod, struct hexapod_config_s* config);
 
@@ -40,6 +46,8 @@ void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
 
 void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector3_s *movement,
                     float phase, struct hpod_vector3_s* leg_pos);
+
+/** @}*/
 
 #ifdef __cplusplus
 }

@@ -9,6 +9,9 @@ test: build
 util: build
 	build/hex-util && ./graph.py
 
+docs:
+	doxygen ./doxygen.conf
+
 clean:
 	rm -rf build/
 

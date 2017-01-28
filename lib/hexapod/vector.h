@@ -1,6 +1,7 @@
 /**
  * Libhexapod
- * Vector definitions for hexapod library use
+ * @file
+ * @brief Vector definitions for hexapod library use
  *
  * https://github.com/ryankurte/libhexapod
  * Copyright 2017 Ryan Kurte
@@ -16,6 +17,10 @@ extern "C" {
 #include <stdlib.h>
 #include <stdint.h>
 
+/** \defgroup Vector
+ * @brief Vector helpers for use in libhexapod
+ * @{
+ */
 
 struct hpod_vector2_s {
     float x;
@@ -35,6 +40,7 @@ hpod_vector2_t hpod_vector2_mul(hpod_vector2_t *a, hpod_vector2_t *b);
 
 hpod_vector3_t hpod_vector3_mul(hpod_vector3_t *a, hpod_vector3_t *b);
 
+/** @}*/
 
 #ifdef __cplusplus
 }

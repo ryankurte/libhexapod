@@ -1,6 +1,7 @@
 /**
  * Libhexapod
- * Hexapod core
+ * @file
+ * @brief Hexapod core functions
  *
  * https://github.com/ryankurte/libhexapod
  * Copyright 2017 Ryan Kurte
@@ -12,6 +13,9 @@
 #include <math.h>
 #include <stdio.h>
 
+/**
+ * @brief Initialise the hexapod instance
+ */
 void HPOD_init(struct hexapod_s* hexapod, struct hexapod_config_s* config)
 {
     hexapod->config.width = config->width;
@@ -22,11 +26,11 @@ void HPOD_init(struct hexapod_s* hexapod, struct hexapod_config_s* config)
 }
 
 /**
- *  2 Joint Arm Inverse Kinematics
- *  Joints at A and B, Arm end at point C
- *  Displacement (from A) represented by d(istance) and h(eight)
- *  Angle outputs are alpha for A (wrt. horizontal plane) and beta for B
- *  (local space)
+ * @brief 2 Joint Arm Inverse Kinematics
+ * Joints at A and B, Arm end at point C
+ * Displacement (from A) represented by d(istance) and h(eight)
+ * Angle outputs are alpha for A (wrt. horizontal plane) and beta for B
+ * (local space)
  *
  *    2D Original          Rotated Flat
  *       B                    B   B      _
@@ -60,7 +64,7 @@ void HPOD_leg_ik2(struct hexapod_s* hexapod, float d, float h, float* alpha, flo
 }
 
 /**
- * 3 Joint Arm Inverse Kinematics
+ * @brief 3 Joint Arm Inverse Kinematics
  * Adds planar rotation theta at joint A (offset by hexapod.offset_a)
  * X direction is outwards from the hexapod, Y is forwards and backward
  * H is offset from zero (in line) position
@@ -80,7 +84,7 @@ void HPOD_leg_ik3(struct hexapod_s* hexapod, struct hpod_vector3_s *end_pos,
 }
 
 /**
- * 2 Joint Arm Forward Kinematics
+ * @brief 2 Joint Arm Forward Kinematics
  * Calculates the position in space from a given control tuple
  * X direction is outwards from the hexapod,
  * H is offset from zero (in line) position
@@ -100,7 +104,7 @@ void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
 
 
 /**
- * 3 Joint Arm Forward Kinematics
+ * @brief 3 Joint Arm Forward Kinematics
  * Calculates the position in space from a given control tuple
  * X direction is outwards from the hexapod,
  * H is offset from zero (in line) position
@@ -127,7 +131,7 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
 
 
 /**
- * Body to joint space transformation
+ * @brief Body to joint space pitch transformation
  * Computes rotation about alpha (x axis) and beta (y axis) with provided offsets to
  * transform locations from world space to joint space for leg IK equations
  * alpha is the body roll, beta is body pitch
@@ -183,6 +187,10 @@ void HPOD_body_transform_pitch(struct hexapod_s* hexapod, float roll, float pitc
     *joint_z = len_eh;
 }
 
+/**
+ * @brief Body to joint space roll translation
+ * 
+ */
 void HPOD_body_transform_roll(struct hexapod_s* hexapod, float roll, float pitch, int offset_x, int offset_y,
                          float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
 {
@@ -208,6 +216,10 @@ void HPOD_body_transform_roll(struct hexapod_s* hexapod, float roll, float pitch
     *joint_z = len_ad;
 }
 
+/**
+ * @brief Hexapod body to world space translation
+ * Applies roll and pitch translation to joint offsets
+ */
 void HPOD_body_transform(struct hexapod_s* hexapod, float roll, float pitch, int offset_x, int offset_y,
                          float x, float y, float z, float* joint_x, float* joint_y, float* joint_z)
 {
@@ -216,7 +228,10 @@ void HPOD_body_transform(struct hexapod_s* hexapod, float roll, float pitch, int
     HPOD_body_transform_roll(hexapod, roll, pitch, offset_x, offset_y, _joint_x, _joint_y, _joint_z, joint_x, joint_y, joint_z);
 }
 
-
+/**
+ * @brief I can't remember what I wrote this for :-/
+ * 
+ */
 void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
                          float xy, float z, float* adj_xy, float* adj_z)
 {
@@ -230,7 +245,7 @@ void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
 
 
 /**
- * Calculate the position of a limb for a provided gait with specified motion at a given walking phase
+ * @brief Calculate the position of a limb for a provided gait with specified motion at a given walking phase
  * Phase is -1 to 1, with contact between -0.5 and 0.5 to help merge movements.
  */
 void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector3_s *movement,
