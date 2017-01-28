@@ -13,18 +13,17 @@
 // Helpers for scalar <-> radian conversion
 // Scalar ranges from -1 to 1 are used to represent angles to simplify floating point
 // methods and reduce error where possible
-#define HPOD_RAD_TO_SCL(a)          (a / (float)M_PI)
-#define HPOD_SCL_TO_RAD(a)          (a * (float)M_PI)
-#define HPOD_WRAP_SCL(a)            ((a >= 0.0) ? fmod(a, 1.0) : -fmod(a, 1.0))
-
+#define HPOD_RAD_TO_SCL(a)          (a / M_PI)
+#define HPOD_SCL_TO_RAD(a)          (a * M_PI)
+#define HPOD_WRAP_SCL(a)            fmod(a, 1.0)
 #define HPOD_LIMIT_RANGE(min, max, val)   ((val < min) ? min : (val > max) ? max : val)
 
 
 /**
- * Hexapod object for internal use
- * This stores the context required to perform hexapod related calculations
+ * Hexapod config object
+ * This is used to configure the hexapod dimensions
  */
-struct hexapod_s {
+struct hexapod_config_s {
     float length;   //!< Hexapod length (between front and rear joints)
     float width;    //!< Hexapod width between joints
     float offset_a; //!< Distance between planar and vertical shoulder joints
@@ -32,19 +31,30 @@ struct hexapod_s {
     float len_bc;   //!< Length of foreleg
 };
 
+#define HPOD_DEFAULT_CONFIG {100, 100, 20, 100, 120}
+
+/**
+ * Hexapod object for internal use
+ * This stores the context required to perform hexapod related calculations
+ */
+struct hexapod_s {
+    struct hexapod_config_s config;
+};
+
 /**
  * Gait control object
  */
 struct hpod_gait_s {
-    struct hpod_vector3_s movement;     //!< Defines dimensions of leg movement
-    struct hpod_vector3_s offset;       //!< Defines movement offsets
-    float height_scale;                 //!< Defines leg lift height as a factor of movement height
+    struct hpod_vector3_s movement;     //!< Defines dimensions of leg movement box
+    struct hpod_vector3_s offset;       //!< Defines offset of movement box
+    float height_scale;                 //!< Defines leg lift offset as a factor of movement height
 };
 
-#define DEFAULT_GAIT { \
-    struct hpod_vector3_s{50.0, 100.0, 10.0}, \
-    struct hpod_vector3_s{0.0, 50.0, 10.0}, \
-    0.05 }
+// Default gait for testing / convenience purposes
+#define HPOD_DEFAULT_MOVEMENT {50.0, 100.0, 10.0}
+#define HPOD_DEFAULT_OFFSET {0.0, 50.0, 10.0}
+#define HPOD_DEFAULT_HEIGHT_SCALE 0.05
+#define HPOD_DEFAULT_GAIT {HPOD_DEFAULT_MOVEMENT, HPOD_DEFAULT_OFFSET, HPOD_DEFAULT_HEIGHT_SCALE}
 
 #endif
 

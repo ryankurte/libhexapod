@@ -11,11 +11,8 @@ class HexTest : public ::testing::Test
 protected:
     HexTest()
     {
-        hexy.length = 200;
-        hexy.width = 100;
-        hexy.offset_a = 20;
-        hexy.len_ab = 80;
-        hexy.len_bc = 100;
+        struct hexapod_config_s config = HPOD_DEFAULT_CONFIG;
+        HPOD_init(&hexy, &config);
     }
 
     virtual ~HexTest()
@@ -38,7 +35,7 @@ TEST_F(HexTest, IK2SweepX)
     float h = 0;
 
     for (int i = 0; i < SWEEP_SIZE; i++) {
-        float x = hexy.offset_a + 10 + hexy.len_bc / SWEEP_SIZE * i;
+        float x = hexy.config.offset_a + 10 + hexy.config.len_bc / SWEEP_SIZE * i;
 
         HPOD_leg_ik2(&hexy, x, h, &alpha, &beta);
         HPOD_leg_fk2(&hexy, alpha, beta, &_x, &_h);
@@ -56,10 +53,10 @@ TEST_F(HexTest, IK2SweepH)
     float h_error = 0.0;
     float x_error = 0.0;
 
-    float x = hexy.len_ab + hexy.len_bc / 2;
+    float x = hexy.config.len_ab + hexy.config.len_bc / 2;
 
     for (int i = 0; i < SWEEP_SIZE; i++) {
-        float h = -hexy.len_bc / 4 + hexy.len_bc / 2 / SWEEP_SIZE * i;
+        float h = -hexy.config.len_bc / 4 + hexy.config.len_bc / 2 / SWEEP_SIZE * i;
 
         HPOD_leg_ik2(&hexy, x, h, &alpha, &beta);
         HPOD_leg_fk2(&hexy, alpha, beta, &_x, &_h);
@@ -78,8 +75,8 @@ TEST_F(HexTest, IK2SweepXH)
     float x_error = 0.0;
 
     for (int i = 0; i < SWEEP_SIZE; i++) {
-        float x = hexy.offset_a + 10 + hexy.len_bc / SWEEP_SIZE * i;
-        float h = -hexy.len_bc / 4 + hexy.len_bc / 2 / SWEEP_SIZE * i;
+        float x = hexy.config.offset_a + 10 + hexy.config.len_bc / SWEEP_SIZE * i;
+        float h = -hexy.config.len_bc / 4 + hexy.config.len_bc / 2 / SWEEP_SIZE * i;
 
         HPOD_leg_ik2(&hexy, x, h, &alpha, &beta);
         HPOD_leg_fk2(&hexy, alpha, beta, &_x, &_h);
@@ -99,10 +96,10 @@ TEST_F(HexTest, IK3SweepY)
     float y_error = 0.0;
 
     float h = 0;
-    float x = hexy.len_ab + hexy.len_bc / 2;
+    float x = hexy.config.len_ab + hexy.config.len_bc / 2;
 
     for (int i = 0; i < SWEEP_SIZE; i++) {
-        float y = -hexy.length / 4 + hexy.length / 2 / SWEEP_SIZE * i;
+        float y = -hexy.config.length / 4 + hexy.config.length / 2 / SWEEP_SIZE * i;
 
         HPOD_leg_ik3(&hexy, x, y, h, &alpha, &beta, &theta);
         HPOD_leg_fk3(&hexy, alpha, beta, theta, &_x, &_y, &_h);

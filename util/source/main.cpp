@@ -4,60 +4,34 @@
 
 #include "hexapod/hexapod.h"
 
+#include "util.h"
+#include "csvfile.h"
 
-#define NUM_SLICES      100
-
-void write_line(FILE* fp, char* name, int count, float* data)
-{
-    //fprintf(fp, "%s, ", name);
-    for (int i=0; i < count; i++) {
-        if (i < (count - 1)) {
-            fprintf(fp, "%.2f, ", data[i]);
-        } else {
-            fprintf(fp, "%.2f", data[i]);
-        }
-        
-    }
-    fprintf(fp, "\n");
-}
 
 int main(int argc, char **argv)
 {
+    struct config_s config = DEFAULT_CONFIG;
 
-    printf("Hexapod util\r\n");
+    parse_config(argc, argv, &config);
 
     // Create hexapod control instance
     struct hexapod_s hexy;
-    HPOD_init(&hexy, 100, 100, 20, 100, 120);
+    HPOD_init(&hexy, &config.hexapod);
 
-    // Create a gait instance
-    struct hpod_gait_s gait;
-    gait.movement.x = 50.0;
-    gait.movement.y = 10.0;
-    gait.movement.z = 50.0;
-    gait.offset.x = 100.0;
-    gait.offset.y = 0.0;
-    gait.height_scale = 0.05;
-
-    // Create movement control struct
-    struct hpod_vector3_s movement;
-    movement.x = 0;
-    movement.y = 1;
-    movement.z = 0;
-
-    float indicies[NUM_SLICES];
-    float targets[3][NUM_SLICES];
-    float angles[3][NUM_SLICES];
-    float actuals[3][NUM_SLICES];
+    // Output data
+    float indicies[NUM_SLICES_MAX];
+    float targets[3][NUM_SLICES_MAX];
+    float angles[3][NUM_SLICES_MAX];
+    float actuals[3][NUM_SLICES_MAX];
 
     // Calculate position of every slice
-    for (int i = 0; i < NUM_SLICES; i++) {
-        float phase = i / (((float)NUM_SLICES - 1) / 2) - 1.0;
+    for (int i = 0; i < config.slices; i++) {
+        float phase = i / (((float)config.slices - 1) / 2) - 1.0;
         indicies[i] = phase;
 
         // Calculate leg position for a given gait
         struct hpod_vector3_s position;
-        HPOD_gait_calc(&hexy, &gait, &movement, phase, &position);
+        HPOD_gait_calc(&hexy, &config.gait, &config.movement, phase, &position);
 
         // Save leg positions
         targets[0][i] = position.x;
@@ -66,29 +40,16 @@ int main(int argc, char **argv)
 
         // Calculate servo control
         HPOD_leg_ik3(&hexy, position.x, position.y, position.z,
-            &angles[0][i], &angles[1][i], &angles[2][i]);
+                     &angles[0][i], &angles[1][i], &angles[2][i]);
 
         HPOD_leg_fk3(&hexy, angles[0][i], angles[1][i], angles[2][i],
-            &actuals[0][i], &actuals[1][i], &actuals[2][i]);
+                     &actuals[0][i], &actuals[1][i], &actuals[2][i]);
 
     }
 
-    // Open output file
-    FILE *fp = fopen("output.csv", "w");
-
     // Write outputs
-    write_line(fp, "I", NUM_SLICES, indicies);
-    write_line(fp, "X_TARGETS", NUM_SLICES, targets[0]);
-    write_line(fp, "Y_TARGETS", NUM_SLICES, targets[1]);
-    write_line(fp, "Z_TARGETS", NUM_SLICES, targets[2]);
-    write_line(fp, "LEG_ALPHA", NUM_SLICES, angles[0]);
-    write_line(fp, "LEG_BETA",  NUM_SLICES, angles[1]);
-    write_line(fp, "LEG_THETA", NUM_SLICES, angles[2]);
-    write_line(fp, "X_ACTUAL",  NUM_SLICES, actuals[0]);
-    write_line(fp, "Y_ACUAL",   NUM_SLICES, actuals[1]);
-    write_line(fp, "Z_ACTUAL",  NUM_SLICES, actuals[2]);
+    write_file("output.csv", config.slices, indicies, targets, angles, actuals);
 
-    // Close file
-    fclose(fp);
+    return 0;
 }
 

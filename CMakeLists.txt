@@ -24,6 +24,7 @@ include(${PROJECT_SOURCE_DIR}/lib/hexapod.cmake)
 
 # Add project headers
 include_directories(${PROJECT_SOURCE_DIR}/test/include)
+include_directories(${PROJECT_SOURCE_DIR}/util/include)
 
 # Add project sources
 set(TEST_SOURCES
@@ -33,9 +34,13 @@ set(TEST_SOURCES
 
 set(UTIL_SOURCES
     ${PROJECT_SOURCE_DIR}/util/source/main.cpp
+    ${PROJECT_SOURCE_DIR}/util/source/csvfile.c
+    ${PROJECT_SOURCE_DIR}/util/source/util.c
 )
 
 ##### Outputs #####
+
+add_definitions(-Wall -Wpedantic)
 
 # Generate tests and link
 add_executable(${TARGET}-test ${TEST_SOURCES})
@@ -45,4 +50,4 @@ add_executable(${TARGET}-util ${UTIL_SOURCES})
 target_link_libraries(${TARGET}-util ${OPTIONAL_LIBS} pthread gmock)
 
 ##### Testing #####
-add_custom_target(tests COMMAND ${TARGET})
+add_custom_target(tests COMMAND ${TARGET}-test)

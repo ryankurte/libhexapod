@@ -3,15 +3,15 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <stdio.h>
 
-
-void HPOD_init(struct hexapod_s* hexapod, float width, float length, float offset_a, float len_ab, float len_bc)
+void HPOD_init(struct hexapod_s* hexapod, struct hexapod_config_s* config)
 {
-    hexapod->width = width;
-    hexapod->length = length;
-    hexapod->offset_a = offset_a;
-    hexapod->len_ab = len_ab;
-    hexapod->len_bc = len_bc;
+    hexapod->config.width = config->width;
+    hexapod->config.length = config->length;
+    hexapod->config.offset_a = config->offset_a;
+    hexapod->config.len_ab = config->len_ab;
+    hexapod->config.len_bc = config->len_bc;
 }
 
 /**
@@ -42,10 +42,10 @@ void HPOD_leg_ik2(struct hexapod_s* hexapod, float d, float h, float* alpha, flo
     float angle_dh = atan2(h,  d);
 
     // Split into two regular triangles & calculate length of shared face
-    float angle_a = acosf((pow(len_ac, 2) + pow(hexapod->len_ab, 2) - pow(hexapod->len_bc, 2))
-                         / (2 * len_ac * hexapod->len_ab));
-    float angle_b = acosf((pow(hexapod->len_ab, 2) + pow(hexapod->len_bc, 2) - pow(len_ac, 2))
-                         / (2 * hexapod->len_ab * hexapod->len_bc));
+    float angle_a = acosf((pow(len_ac, 2) + pow(hexapod->config.len_ab, 2) - pow(hexapod->config.len_bc, 2))
+                         / (2 * len_ac * hexapod->config.len_ab));
+    float angle_b = acosf((pow(hexapod->config.len_ab, 2) + pow(hexapod->config.len_bc, 2) - pow(len_ac, 2))
+                         / (2 * hexapod->config.len_ab * hexapod->config.len_bc));
 
     // Convert back into world frame
     *alpha = angle_a + angle_dh;
@@ -66,7 +66,7 @@ void HPOD_leg_ik3(struct hexapod_s* hexapod, float x, float y, float h,
     float angle_xy = atan2(y, x);
 
     // Process ik2 equation with total distance (less offset between joints at A)
-    HPOD_leg_ik2(hexapod, len_xy - hexapod->offset_a, h, alpha, beta);
+    HPOD_leg_ik2(hexapod, len_xy - hexapod->config.offset_a, h, alpha, beta);
 
     // Output angle theta
     *theta = angle_xy;
@@ -82,13 +82,13 @@ void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
                  float* x, float* h)
 {
     // Joint B position
-    float b_x = hexapod->len_ab * cosf(alpha);
-    float b_h = hexapod->len_ab * sinf(alpha);
+    float b_x = hexapod->config.len_ab * cosf(alpha);
+    float b_h = hexapod->config.len_ab * sinf(alpha);
 
     // Joint C position
     float world_beta = M_PI - alpha - beta;
-    *x = b_x + hexapod->len_bc * cosf(world_beta);
-    *h = b_h - hexapod->len_bc * sinf(world_beta);
+    *x = b_x + hexapod->config.len_bc * cosf(world_beta);
+    *h = b_h - hexapod->config.len_bc * sinf(world_beta);
 }
 
 
@@ -103,8 +103,8 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
                  float* x, float* y, float* h)
 {
     // Joint A position
-    float a_x = cosf(theta) * hexapod->offset_a;
-    float a_y = sinf(theta) * hexapod->offset_a;
+    float a_x = cosf(theta) * hexapod->config.offset_a;
+    float a_y = sinf(theta) * hexapod->config.offset_a;
     float a_h = 0;
 
     float c_d, c_h;
@@ -229,7 +229,7 @@ void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
 void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector3_s *movement,
                     float phase_scl, hpod_vector3_t* leg_pos)
 {
-
+    // Convert phase from scl (-1, 1) to rads for trig
     float phase_scl_wrapped = HPOD_WRAP_SCL(phase_scl);
     float phase_rads = HPOD_SCL_TO_RAD(phase_scl_wrapped);
 
@@ -247,7 +247,7 @@ void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct 
              * gait->movement.z / 2 + gait->offset.z;
     }
 
-    // TODO: how does rotation fit into this?
+    // TODO: how do I integrate rotation into this?
 }
 
 
