@@ -95,25 +95,26 @@ TEST_F(HexTest, IK2SweepXH)
 
 TEST_F(HexTest, IK3SweepY)
 {
-    float alpha, beta, theta, _x, _y, _h;
+    float alpha, beta, theta;
+    struct hpod_vector3_s desired_pos;
+    struct hpod_vector3_s actual_pos;
 
     float h_error = 0.0;
     float x_error = 0.0;
     float y_error = 0.0;
 
-    float h = 0;
-    float x = hexy.config.len_ab + hexy.config.len_bc / 2;
+    desired_pos.z = 0;
+    desired_pos.x = hexy.config.len_ab + hexy.config.len_bc / 2;
 
     for (int i = 0; i < SWEEP_SIZE; i++) {
         float y = -hexy.config.length / 4 + hexy.config.length / 2 / SWEEP_SIZE * i;
 
-        HPOD_leg_ik3(&hexy, x, y, h, &alpha, &beta, &theta);
-        HPOD_leg_fk3(&hexy, alpha, beta, theta, &_x, &_y, &_h);
-        //printf("X: %f (%f) Y: %f (%f) H: %f (%f)\r\n", _x, x, _y, y, _h, h);
+        HPOD_leg_ik3(&hexy, &desired_pos, &alpha, &beta, &theta);
+        HPOD_leg_fk3(&hexy, alpha, beta, theta, &actual_pos);
 
-        ASSERT_NEAR(h, _h, FLOAT_ERROR);
-        ASSERT_NEAR(x, _x, FLOAT_ERROR);
-        ASSERT_NEAR(y, _y, FLOAT_ERROR);
+        ASSERT_NEAR(desired_pos.z, actual_pos.z, FLOAT_ERROR);
+        ASSERT_NEAR(desired_pos.x, actual_pos.x, FLOAT_ERROR);
+        ASSERT_NEAR(desired_pos.y, actual_pos.y, FLOAT_ERROR);
     }
 }
 

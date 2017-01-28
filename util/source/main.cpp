@@ -47,12 +47,15 @@ int main(int argc, char **argv)
         targets[2][i] = position.z;
 
         // Calculate servo control
-        HPOD_leg_ik3(&hexy, position.x, position.y, position.z,
+        HPOD_leg_ik3(&hexy, &position,
                      &angles[0][i], &angles[1][i], &angles[2][i]);
 
-        HPOD_leg_fk3(&hexy, angles[0][i], angles[1][i], angles[2][i],
-                     &actuals[0][i], &actuals[1][i], &actuals[2][i]);
-
+        // Calculate control inverse
+        struct hpod_vector3_s actual;
+        HPOD_leg_fk3(&hexy, angles[0][i], angles[1][i], angles[2][i], &actual);
+        actuals[0][i] = actual.x;
+        actuals[1][i] = actual.y;
+        actuals[2][i] = actual.z;
     }
 
     // Write outputs

@@ -65,15 +65,15 @@ void HPOD_leg_ik2(struct hexapod_s* hexapod, float d, float h, float* alpha, flo
  * X direction is outwards from the hexapod, Y is forwards and backward
  * H is offset from zero (in line) position
  */
-void HPOD_leg_ik3(struct hexapod_s* hexapod, float x, float y, float h,
+void HPOD_leg_ik3(struct hexapod_s* hexapod, struct hpod_vector3_s *end_pos,
                   float* alpha, float* beta, float* theta)
 {
     // Calculate distance and angle from origin to point (x, y)
-    float len_xy = sqrt(pow(x, 2) + pow(y, 2));
-    float angle_xy = atan2(y, x);
+    float len_xy = sqrt(pow(end_pos->x, 2) + pow(end_pos->y, 2));
+    float angle_xy = atan2(end_pos->y, end_pos->x);
 
     // Process ik2 equation with total distance (less offset between joints at A)
-    HPOD_leg_ik2(hexapod, len_xy - hexapod->config.offset_a, h, alpha, beta);
+    HPOD_leg_ik2(hexapod, len_xy - hexapod->config.offset_a, end_pos->z, alpha, beta);
 
     // Output angle theta
     *theta = angle_xy;
@@ -107,7 +107,7 @@ void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
  * Y is forwards and backward
  */
 void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float theta,
-                 float* x, float* y, float* h)
+                 struct hpod_vector3_s *end_pos)
 {
     // Joint A position
     float a_x = cosf(theta) * hexapod->config.offset_a;
@@ -120,9 +120,9 @@ void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float thet
 
     float len_ac = sqrt(pow(c_d, 2) + pow(c_h, 2));
 
-    *x = a_x + c_d * cosf(theta);
-    *y = a_y + c_d * sinf(theta);
-    *h = c_h;
+    end_pos->x = a_x + c_d * cosf(theta);
+    end_pos->y = a_y + c_d * sinf(theta);
+    end_pos->z = c_h;
 }
 
 

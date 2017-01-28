@@ -5,3 +5,4 @@ __Previews/
 *.htm
 *.DS_Store
 build/
+*.csv

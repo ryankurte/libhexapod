@@ -23,14 +23,14 @@ void HPOD_init(struct hexapod_s* hexapod, struct hexapod_config_s* config);
 
 void HPOD_leg_ik2(struct hexapod_s* hexapod, float d, float h, float* alpha, float* beta);
 
-void HPOD_leg_ik3(struct hexapod_s* hexapod, float x, float y, float h,
+void HPOD_leg_ik3(struct hexapod_s* hexapod, struct hpod_vector3_s *end_pos,
                   float* alpha, float* beta, float* theta);
 
 void HPOD_leg_fk2(struct hexapod_s* hexapod, float alpha, float beta,
                   float* x, float* h);
 
 void HPOD_leg_fk3(struct hexapod_s* hexapod, float alpha, float beta, float theta,
-                  float* x, float* y, float* h);
+                  struct hpod_vector3_s *end_pos);
 
 void HPOD_body_transform(struct hexapod_s* hexapod, float alpha, float beta, int offset_x, int offset_y,
                          float x, float y, float z, float* joint_x, float* joint_y, float* joint_z);

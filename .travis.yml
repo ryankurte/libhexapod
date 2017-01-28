@@ -1,0 +1,11 @@
+language: c
+
+install:
+  - make build
+
+script:
+  - make test
+
+notifications:
+  email: false
+  
