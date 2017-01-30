@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# Hexapod library wrapper
+# Wraps libhexapod to provide a python object for interaction
+#
+# https://github.com/ryankurte/libhexapod
+# Copyright 2017 Ryan Kurte
 
 from cffi import FFI
 ffi = FFI()

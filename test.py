@@ -19,10 +19,10 @@ import hexapod
 hexy = hexapod.Hexapod(300, 150, 50, 80, 150)
 
 gait=(100.0, 200.0, 40.0)
-offset=(150.0, 0.0, -50.0)
+offset=(150.0, 0.0, -80.0)
 lift=0.1
 
-hexy.set_gait(gait, offset, lift)
+hexy.set_gait(gait, offset)
 
 
 # Internal variables
@@ -65,14 +65,14 @@ def fy(m, p):
 
 def fh(m, p):
     p = math.fmod(p + 3.0, 2.0) - 1.0
-    if(np.abs(p) > (0.5 + lift / 2)):
+    if(np.abs(p) < (0.5)):
         return -gait[2] / 2 + offset[2]
-    elif(np.abs(p) < (0.5 - lift / 2)):
+    elif(np.abs(p) > (0.5 + lift / 2)):
         return gait[2] / 2 + offset[2]
-    elif(p < 0):
-        return np.cos((p + lift/2) / lift * np.pi) * gait[2] / 2 + offset[2]
+    elif(p > 0):
+        return np.cos((p - 0.5 + lift) / lift * np.pi) * gait[2] / 2 + offset[2]
     else:
-        return np.cos((p - lift/2) / lift * np.pi) * gait[2] / 2 + offset[2]
+        return np.cos((p + 0.5 - lift) / lift * np.pi) * gait[2] / 2 + offset[2]
         
 def gait_calc(m, p):
     return (fx(m, p), fy(m, p), fh(m, p))
@@ -126,7 +126,7 @@ def gen_subplt(title, index, range, data, alt, error):
     subpolt.set_ylim(-range, range)
     dataplot, = subpolt.plot(phase, data, 'b')
     altplot, = subpolt.plot(phase, alt, 'g')
-    errorplot, = subpolt.plot(phase, error, 'r')
+    errorplot, = subpolt.plot(phase, error, 'r--')
     return (subpolt, dataplot, altplot, errorplot)
 
 # Create plots
@@ -143,19 +143,19 @@ asubplt = plt.subplot2grid((3, 4), (0, 1))
 plt.title('Alpha')
 asubplt.set_ylim(-np.pi, np.pi)
 aplot, = plt.plot(phase, a, 'b')
-a1plot, = plt.plot(phase, a1, 'r')
+a1plot, = plt.plot(phase, a1, 'g')
 
 bsubplt = plt.subplot2grid((3, 4), (1, 1))
 plt.title('Beta')
 bsubplt.set_ylim(-np.pi, np.pi)
 bplot, = plt.plot(phase, b, 'b')
-b1plot, = plt.plot(phase, b1, 'r')
+b1plot, = plt.plot(phase, b1, 'g')
 
 osubplt = plt.subplot2grid((3, 4), (2, 1))
 plt.title('theta')
 osubplt.set_ylim(-np.pi, np.pi)
 oplot, = plt.plot(phase, o, 'b')
-o1plot, = plt.plot(phase, o1, 'r')
+o1plot, = plt.plot(phase, o1, 'g')
 
 # 3d Animation
 animsubplt = plt.subplot2grid((3, 4), (0, 2), colspan=2, rowspan=3, projection='3d')
@@ -195,18 +195,21 @@ def update(val):
         x1[i], y1[i], h1[i] = hexy.gait_calc(m, phase[i])
         a[i], b[i], o[i] = ik3(x[i], y[i], h[i])
         a1[i], b1[i], o1[i] = hexy.leg_ik3(x1[i], y1[i], h1[i])
-        ep_x[i], ep_y[i], ep_h[i] = calculate_fk3_ep(a1[i], b1[i], o1[i])
+        end_x, end_y, end_h = calculate_fk3_ep(a1[i], b1[i], o1[i])
+        ep_x[i] = end_x - x1[i]
+        ep_y[i] = end_y - y1[i]
+        ep_h[i] = end_h - h1[i]
 
     # Attach to plots
     xplot.set_data(phase, x)
     yplot.set_data(phase, y)
     hplot.set_data(phase, h)
-    xerrplot.set_data(phase, ep_x)
-    yerrplot.set_data(phase, ep_y)
-    herrplot.set_data(phase, ep_h)
     xaltplot.set_data(phase, x1)
     yaltplot.set_data(phase, y1)
     haltplot.set_data(phase, h1)
+    xerrplot.set_data(phase, ep_x)
+    yerrplot.set_data(phase, ep_y)
+    herrplot.set_data(phase, ep_h)
     
     aplot.set_data(phase, a)
     bplot.set_data(phase, b)

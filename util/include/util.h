@@ -29,7 +29,7 @@ struct config_s {
 };
 
 // Default configuration
-#define DEFAULT_CONFIG {100, "output.csv", HPOD_DEFAULT_CONFIG, HPOD_DEFAULT_GAIT, {0.0, 1.0, 0.0}}
+#define DEFAULT_CONFIG {400, "output.csv", HPOD_DEFAULT_CONFIG, HPOD_DEFAULT_GAIT, {0.0, 1.0, 0.0}}
 
 void parse_config(int argc, char** argv, struct config_s* config);
 
