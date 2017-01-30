@@ -49,7 +49,7 @@ struct hexapod_config_s {
 };
 
 // Default hexapod config for testing / convenience purposes
-#define HPOD_DEFAULT_CONFIG {200, 100, 50, 80, 150}
+#define HPOD_DEFAULT_CONFIG {200, 100, 45, 80, 150}
 
 /**
  * Hexapod object for internal use
@@ -70,7 +70,7 @@ struct hpod_gait_s {
 
 // Default gait for testing / convenience purposes
 #define HPOD_DEFAULT_MOVEMENT {100.0, 200.0, 20.0}
-#define HPOD_DEFAULT_OFFSET {150.0, 0.0, -80.0}
+#define HPOD_DEFAULT_OFFSET {150.0, 0.0, -70.0}
 #define HPOD_DEFAULT_LIFT_SCALE 0.1
 #define HPOD_DEFAULT_GAIT {HPOD_DEFAULT_MOVEMENT, HPOD_DEFAULT_OFFSET, HPOD_DEFAULT_LIFT_SCALE}
 

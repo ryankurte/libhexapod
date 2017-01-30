@@ -16,10 +16,10 @@ import hexapod
 
 # Configuration variables
 
-hexy = hexapod.Hexapod(300, 150, 50, 80, 150)
+hexy = hexapod.Hexapod(300, 150, 45, 80, 150)
 
-gait=(100.0, 200.0, 40.0)
-offset=(150.0, 0.0, -80.0)
+gait=(100.0, 200.0, 20.0)
+offset=(150.0, 0.0, -70.0)
 lift=0.1
 
 hexy.set_gait(gait, offset)
@@ -67,7 +67,7 @@ def fh(m, p):
     p = math.fmod(p + 3.0, 2.0) - 1.0
     if(np.abs(p) < (0.5)):
         return -gait[2] / 2 + offset[2]
-    elif(np.abs(p) > (0.5 + lift / 2)):
+    elif(np.abs(p) > (0.5 + lift)):
         return gait[2] / 2 + offset[2]
     elif(p > 0):
         return np.cos((p - 0.5 + lift) / lift * np.pi) * gait[2] / 2 + offset[2]
