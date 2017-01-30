@@ -19,7 +19,7 @@ import hexapod
 hexy = hexapod.Hexapod(300, 150, 50, 80, 150)
 
 gait=(100.0, 200.0, 40.0)
-offset=(150.0, 0.0, -100.0)
+offset=(150.0, 0.0, -50.0)
 lift=0.1
 
 hexy.set_gait(gait, offset, lift)
@@ -33,6 +33,8 @@ my = 1.0
 mr = 0.0
 
 freq = 1.0
+
+desired_pos = [[0] * len(phase)] * 3
 
 x = [0] * len(phase)
 y = [0] * len(phase)
@@ -56,59 +58,60 @@ ep_h = [0] * len(phase)
 
 # Gait control functions
 def fx(m, p):
-    return np.sin(p * np.pi) * gait[0] / 2 * m[0] + offset[0];
+    return np.sin(p * np.pi) * gait[0] / 2 * m[0] + offset[0]
 
 def fy(m, p):
-    return np.sin(p * np.pi) * gait[1] / 2 * m[1];
+    return np.sin(p * np.pi) * gait[1] / 2 * m[1]
 
 def fh(m, p):
+    p = math.fmod(p + 3.0, 2.0) - 1.0
     if(np.abs(p) > (0.5 + lift / 2)):
-        return -gait[2] / 2 + offset[2];
+        return -gait[2] / 2 + offset[2]
     elif(np.abs(p) < (0.5 - lift / 2)):
-        return gait[2] / 2 + offset[2];
+        return gait[2] / 2 + offset[2]
     elif(p < 0):
-        return np.cos((p + lift/2) / lift * np.pi) * gait[2] / 2 + offset[2];
+        return np.cos((p + lift/2) / lift * np.pi) * gait[2] / 2 + offset[2]
     else:
-        return np.cos((p - lift/2) / lift * np.pi) * gait[2] / 2 + offset[2];
+        return np.cos((p - lift/2) / lift * np.pi) * gait[2] / 2 + offset[2]
         
 def gait_calc(m, p):
     return (fx(m, p), fy(m, p), fh(m, p))
 
 def ik2(d, h):
     # Calculate length between A & C
-    len_ac = np.sqrt(math.pow(d, 2) + math.pow(h, 2));
+    len_ac = np.sqrt(math.pow(d, 2) + math.pow(h, 2))
 
     # Calculate rotational offset from zero frame (h = 0)
-    angle_dh = math.atan(h / d);
+    angle_dh = math.atan(h / d)
 
     # Calculate angles in local frame
-    angle_a = math.acos((math.pow(len_ac, 2) + math.pow(hexy.len_ab, 2) - math.pow(hexy.len_bc, 2)) / (2 * len_ac * hexy.len_ab));
-    angle_b = math.acos((math.pow(hexy.len_ab, 2) + math.pow(hexy.len_bc, 2) - math.pow(len_ac, 2)) / (2 * hexy.len_ab * hexy.len_bc));
+    angle_a = math.acos((math.pow(len_ac, 2) + math.pow(hexy.len_ab, 2) - math.pow(hexy.len_bc, 2)) / (2 * len_ac * hexy.len_ab))
+    angle_b = math.acos((math.pow(hexy.len_ab, 2) + math.pow(hexy.len_bc, 2) - math.pow(len_ac, 2)) / (2 * hexy.len_ab * hexy.len_bc))
 
     # Convert back into world frame
-    alpha = angle_a + angle_dh;
-    beta = angle_b;
+    alpha = angle_a + angle_dh
+    beta = angle_b
 
     return (alpha, beta)
 
 def ik3(x, y, h):
     # Calculate distance and angle from origin to point (x, y)
-    len_xy = np.sqrt(math.pow(x, 2) + math.pow(y, 2));
-    angle_xy = math.atan(y / x);
+    len_xy = np.sqrt(math.pow(x, 2) + math.pow(y, 2))
+    angle_xy = math.atan(y / x)
 
     # Process ik2 equation with total distance (less offset between joints at A)
-    alpha, beta = ik2(len_xy - hexy.offset_a, h);
+    alpha, beta = ik2(len_xy - hexy.offset_a, h)
 
     # Output all angles
-    theta = angle_xy;
+    theta = angle_xy
     return (alpha, beta, theta)
 
 def calculate_fk3(a, b, o):
-    pos_a = (np.cos(o) * hexy.offset_a, np.sin(o) * hexy.offset_a, 0);
-    hexy.len_ab_xy = np.cos(a) * hexy.len_ab;
+    pos_a = (np.cos(o) * hexy.offset_a, np.sin(o) * hexy.offset_a, 0)
+    hexy.len_ab_xy = np.cos(a) * hexy.len_ab
     pos_b = (pos_a[0] + np.cos(o) * hexy.len_ab_xy, pos_a[1] + np.sin(o) * hexy.len_ab_xy, pos_a[2] + np.sin(a) * hexy.len_ab)
-    world_beta = a + b - np.pi;
-    hexy.len_bc_xy = np.cos(world_beta) * hexy.len_bc;
+    world_beta = a + b - np.pi
+    hexy.len_bc_xy = np.cos(world_beta) * hexy.len_bc
     pos_c = (pos_b[0] + np.cos(o) * hexy.len_bc_xy, pos_b[1] + np.sin(o) * hexy.len_bc_xy, pos_b[2] + np.sin(world_beta) * hexy.len_bc)
 
     return (pos_a, pos_b, pos_c)
@@ -120,10 +123,10 @@ def calculate_fk3_ep(a, b, o):
 def gen_subplt(title, index, range, data, alt, error):
     subpolt = plt.subplot2grid((3, 4), index)
     subpolt.set_title(title)
-    subpolt.set_ylim(-range, range);
-    dataplot, = subpolt.plot(phase, data, 'b');
-    altplot, = subpolt.plot(phase, alt, 'g');
-    errorplot, = subpolt.plot(phase, error, 'r');
+    subpolt.set_ylim(-range, range)
+    dataplot, = subpolt.plot(phase, data, 'b')
+    altplot, = subpolt.plot(phase, alt, 'g')
+    errorplot, = subpolt.plot(phase, error, 'r')
     return (subpolt, dataplot, altplot, errorplot)
 
 # Create plots
@@ -138,21 +141,21 @@ hsubplt, hplot, haltplot, herrplot = gen_subplt('Leg Offset H', (2, 0), np.abs(o
 # Inverse Kinematic plots
 asubplt = plt.subplot2grid((3, 4), (0, 1))
 plt.title('Alpha')
-asubplt.set_ylim(-np.pi, np.pi);
-aplot, = plt.plot(phase, a, 'b');
-a1plot, = plt.plot(phase, a1, 'r');
+asubplt.set_ylim(-np.pi, np.pi)
+aplot, = plt.plot(phase, a, 'b')
+a1plot, = plt.plot(phase, a1, 'r')
 
 bsubplt = plt.subplot2grid((3, 4), (1, 1))
 plt.title('Beta')
-bsubplt.set_ylim(-np.pi, np.pi);
-bplot, = plt.plot(phase, b, 'b');
-b1plot, = plt.plot(phase, b1, 'r');
+bsubplt.set_ylim(-np.pi, np.pi)
+bplot, = plt.plot(phase, b, 'b')
+b1plot, = plt.plot(phase, b1, 'r')
 
 osubplt = plt.subplot2grid((3, 4), (2, 1))
 plt.title('theta')
-osubplt.set_ylim(-np.pi, np.pi);
-oplot, = plt.plot(phase, o, 'b');
-o1plot, = plt.plot(phase, o1, 'r');
+osubplt.set_ylim(-np.pi, np.pi)
+oplot, = plt.plot(phase, o, 'b')
+o1plot, = plt.plot(phase, o1, 'r')
 
 # 3d Animation
 animsubplt = plt.subplot2grid((3, 4), (0, 2), colspan=2, rowspan=3, projection='3d')
@@ -162,9 +165,9 @@ legplot, = animsubplt.plot([0], [0], zs=[0])
 
 animscale = max(gait[0] + offset[0], max(gait[1], gait[2] + abs(offset[2])))
 
-animsubplt.set_xlim3d(-0, animscale);
-animsubplt.set_ylim3d(-animscale / 2, animscale / 2);
-animsubplt.set_zlim3d(-animscale / 2, animscale / 2);
+animsubplt.set_xlim3d(-0, animscale)
+animsubplt.set_ylim3d(-animscale / 2, animscale / 2)
+animsubplt.set_zlim3d(-animscale / 2, animscale / 2)
 animsubplt.set_xlabel('X')
 animsubplt.set_ylabel('Y')
 animsubplt.set_zlabel('H')
@@ -181,17 +184,17 @@ symove = Slider(ymove, 'Movement Y', -1.0, 1.0, valinit=my)
 
 # Update data function
 def update(val):
-    mx = sxmove.val;
-    my = symove.val;
+    mx = sxmove.val
+    my = symove.val
     
-    m = (mx, my, mr);
+    m = (mx, my, mr)
 
     # Generate new data
     for i in range(0, len(phase)):
         x[i], y[i], h[i] = gait_calc(m, phase[i])
         x1[i], y1[i], h1[i] = hexy.gait_calc(m, phase[i])
         a[i], b[i], o[i] = ik3(x[i], y[i], h[i])
-        a1[i], b1[i], o1[i] = hexy.leg_ik3(x[i], y[i], h[i])
+        a1[i], b1[i], o1[i] = hexy.leg_ik3(x1[i], y1[i], h1[i])
         ep_x[i], ep_y[i], ep_h[i] = calculate_fk3_ep(a1[i], b1[i], o1[i])
 
     # Attach to plots
@@ -213,7 +216,7 @@ def update(val):
     b1plot.set_data(phase, b1)
     o1plot.set_data(phase, o1)
 
-    xyhplot.set_data(x, y);
+    xyhplot.set_data(x, y)
     xyhplot.set_3d_properties(h)
 
 # Bind update to changes in sliders
@@ -235,7 +238,7 @@ def update_anim(frame):
     animplot.set_data([0, x[frame]], [0, y[frame]])
     animplot.set_3d_properties([0, h[frame]])
 
-    pos_a, pos_b, pos_c = calculate_fk3(a[frame], b[frame], o[frame])
+    pos_a, pos_b, pos_c = calculate_fk3(a1[frame], b1[frame], o1[frame])
 
     leg_x, leg_y, leg_h = build_leg(frame, (0, 0, 0))
 
@@ -248,6 +251,6 @@ line_ani = animation.FuncAnimation(fig1, update_anim, len(phase),
 
 update(0)
 
-plt.show();
+plt.show()
 
 

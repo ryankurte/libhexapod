@@ -75,6 +75,9 @@ class Hexapod:
         lib.HPOD_gait_calc(self.hexy, self.gait, m, phase, pos)
         return (float(pos.x), float(pos.y), float(pos.z))
 
+    def gait_valid(self):
+        res = lib.HPOD_gait_valid(self.hexy, self.gait)
+        return (res == 0)
 
 # Run tests if loaded directly
 if __name__ == "__main__":
@@ -83,7 +86,9 @@ if __name__ == "__main__":
     print("Testing IK3")
     print(h.leg_ik3(100.0, 100.0, 100.0))
     print("Testing Gait Calculation")
-    print(h.gait_calc(0.0))
+    print(h.gait_calc((100.0, 100.0, 40.0), 0.0))
+    print("Testing Gait Validity")
+    print(h.gait_valid())
     print("Tests complete")
 
 
