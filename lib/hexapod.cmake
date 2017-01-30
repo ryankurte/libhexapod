@@ -13,6 +13,6 @@ set(LIBHEXAPOD_SOURCES
 )
 
 # Create library
-add_library(hexapod ${LIBHEXAPOD_SOURCES})
-
-set(OPTIONAL_LIBS hexapod ${OPTIONAL_LIBS})
+add_library(hexapod SHARED ${LIBHEXAPOD_SOURCES})
+add_library(hexapod-static STATIC ${LIBHEXAPOD_SOURCES})
+set(OPTIONAL_LIBS hexapod-static ${OPTIONAL_LIBS} ${PYTHON_LIBRARIES})

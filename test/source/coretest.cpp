@@ -28,6 +28,13 @@ protected:
     struct hexapod_s hexy;
 };
 
+TEST_F(HexTest, ValidGait)
+{
+    struct hpod_gait_s gait = HPOD_DEFAULT_GAIT;
+    int res = HPOD_gait_valid(&hexy, &gait);
+    ASSERT_EQ(res, 0);
+}
+
 #define SWEEP_SIZE      100
 #define FLOAT_ERROR     0.01
 
@@ -41,7 +48,7 @@ TEST_F(HexTest, IK2SweepX)
     float h = 0;
 
     for (int i = 0; i < SWEEP_SIZE; i++) {
-        float x = hexy.config.offset_a + 10 + hexy.config.len_bc / SWEEP_SIZE * i;
+        float x = hexy.config.offset_a + 50 + hexy.config.len_bc / SWEEP_SIZE * i;
 
         HPOD_leg_ik2(&hexy, x, h, &alpha, &beta);
         HPOD_leg_fk2(&hexy, alpha, beta, &_x, &_h);

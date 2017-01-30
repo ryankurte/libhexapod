@@ -1,4 +1,17 @@
 language: c
+  
+addons:
+  apt:
+    packages:
+      - doxygen
+      - doxygen-doc
+      - doxygen-latex
+      - doxygen-gui
+      - graphviz
+
+branches:
+  except:
+    - gh-pages
 
 install:
   - make build
@@ -8,4 +21,3 @@ script:
 
 notifications:
   email: false
-  

@@ -13,6 +13,8 @@
 
 #include "hexapod/servo.h"
 
+#define RANGE_RADS (300.0 / 180.0 * M_PI)
+
 class ServoTest : public ::testing::Test
 {
 protected:
@@ -26,7 +28,7 @@ protected:
     }
 
     struct hpod_servo_s servo;
-    float range_rads = M_PI;
+    float range_rads = RANGE_RADS;
     int output_range  = 1024;
     int output_offset = 512;
 };
@@ -42,25 +44,25 @@ TEST_F(ServoTest, Center)
 
 TEST_F(ServoTest, FullLeft)
 {
-    int output = HPOD_servo_scale(&servo, M_PI / 2);
+    int output = HPOD_servo_scale(&servo, RANGE_RADS / 2);
     ASSERT_EQ(output, 1024);
 }
 
 TEST_F(ServoTest, FullRight)
 {
-    int output = HPOD_servo_scale(&servo, -M_PI / 2);
+    int output = HPOD_servo_scale(&servo, -RANGE_RADS / 2);
     ASSERT_EQ(output, 0);
 }
 
 TEST_F(ServoTest, HalfLeft)
 {
-    int output = HPOD_servo_scale(&servo, M_PI / 4);
+    int output = HPOD_servo_scale(&servo, RANGE_RADS / 4);
     ASSERT_EQ(output, 768);
 }
 
 TEST_F(ServoTest, HalfRight)
 {
-    int output = HPOD_servo_scale(&servo, -M_PI / 4);
+    int output = HPOD_servo_scale(&servo, -RANGE_RADS / 4);
     ASSERT_EQ(output, 256);
 }
 

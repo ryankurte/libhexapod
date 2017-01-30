@@ -26,11 +26,17 @@ int main(int argc, char **argv)
     struct hexapod_s hexy;
     HPOD_init(&hexy, &config.hexapod);
 
+    int res = HPOD_gait_valid(&hexy, &config.gait);
+    if (res < 0) {
+        printf("WARNING: Hexapod and gait combination could not be solved (error: %d)\r\n", res);
+        return -1;
+    }
+
     // Output data
     float data[NUM_SLICES_MAX][10];
     // Calculate position of every slice
     for (int i = 0; i < config.slices; i++) {
-        float phase = i / (((float)config.slices - 1) / 2) - 1.0;
+        float phase = i / (((float)config.slices - 1) / 2) - 1;
         data[i][0] = phase;
 
         // Calculate leg position for a given gait

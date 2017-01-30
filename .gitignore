@@ -6,3 +6,4 @@ __Previews/
 *.DS_Store
 build/
 *.csv
+__pycache__/

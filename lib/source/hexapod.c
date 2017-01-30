@@ -76,8 +76,8 @@ void HPOD_leg_ik2(struct hexapod_s* hexapod, float d, float h, float* alpha, flo
  * X direction is outwards from the hexapod, Y is forwards and backward
  * H is offset from zero (in line) position
  */
-void HPOD_leg_ik3(struct hexapod_s* hexapod, struct hpod_vector3_s *end_pos,
-                  float* alpha, float* beta, float* theta)
+int HPOD_leg_ik3(struct hexapod_s* hexapod, struct hpod_vector3_s *end_pos,
+                 float* alpha, float* beta, float* theta)
 {
     // Calculate distance and angle from origin to point (x, y)
     float len_xy = sqrt(pow(end_pos->x, 2) + pow(end_pos->y, 2));
@@ -88,6 +88,13 @@ void HPOD_leg_ik3(struct hexapod_s* hexapod, struct hpod_vector3_s *end_pos,
 
     // Output angle theta
     *theta = angle_xy;
+
+    // Check for valid solution
+    if (isnan(*alpha) || isnan(*beta) || isnan(*theta)) {
+        return -1;
+    }
+
+    return 0;
 }
 
 /**
@@ -250,6 +257,11 @@ void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
     *adj_xy = xy + offset / cosf(angle) - offset;
 }
 
+float normalize_angle(float angle)
+{
+    float a = fmod(angle + M_PI, 2 * M_PI);
+    return a >= 0 ? (a - M_PI) : (a + M_PI);
+}
 
 /**
  * @brief Calculate the position of a limb for a provided gait with specified motion at a given walking phase
@@ -258,34 +270,58 @@ void HPOD_world_roll_pitch(struct hexapod_s* hexapod, float angle, int offset,
 void HPOD_gait_calc(struct hexapod_s* hexapod, struct hpod_gait_s *gait, struct hpod_vector3_s *movement,
                     float phase_scl, hpod_vector3_t* leg_pos)
 {
-    // Convert phase from scl (-1, 1) to rads for trig
-    float phase_scl_wrapped = HPOD_WRAP_SCL(phase_scl);
-    float phase_rads = HPOD_SCL_TO_RAD(phase_scl_wrapped);
+    float phase_rads = phase_scl * M_PI;
 
     // Forward walk
-    leg_pos->x = sinf(phase_rads) * gait->movement.x * movement->x + gait->offset.y;
-    leg_pos->y = sinf(phase_rads) * gait->movement.y * movement->y;
+    leg_pos->x = sinf(phase_rads) * gait->movement.x / 2 * movement->x + gait->offset.x;
+    leg_pos->y = sinf(phase_rads) * gait->movement.y / 2 * movement->y;// + gait->offset.y;
 
     // Height morphing determined by height_scale as a fraction of the phase for the height to change over
-    if (fabs(phase_scl_wrapped) > (0.5 + gait->height_scale / 2)) {
+    if (fabs(phase_scl) > (0.5 + gait->height_scale / 2)) {
         // Leg down state
         leg_pos->z = -gait->movement.z / 2 + gait->offset.z;
-    } else if (fabs(phase_scl_wrapped) < (0.5 - gait->height_scale / 2)) {
+    } else if (fabs(phase_scl) < (0.5 - gait->height_scale / 2)) {
         // Leg up state
         leg_pos->z = gait->movement.z / 2 + gait->offset.z;
-    } else if (phase_rads < 0) {
+    } else if (phase_scl < 0) {
         // Transitioning down state
-        leg_pos->z = cosf((phase_rads - gait->height_scale / 2) / gait->height_scale * M_PI)
+        leg_pos->z = cosf((phase_scl + gait->height_scale / 2) / gait->height_scale * M_PI)
                      * gait->movement.z / 2 + gait->offset.z;
     } else {
         // Transitioning up state
-        leg_pos->z = cosf((phase_rads + gait->height_scale / 2) / gait->height_scale * M_PI)
+        leg_pos->z = cosf((phase_scl - gait->height_scale / 2) / gait->height_scale * M_PI)
                      * gait->movement.z / 2 + gait->offset.z;
     }
 
     // TODO: how do I integrate rotation into this?
 }
 
+#define CHECK_SLICES    100
+
+int HPOD_gait_valid(struct hexapod_s* hexapod, struct hpod_gait_s *gait)
+{
+
+    struct hpod_vector3_s movements[2] = {{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
+    struct hpod_vector3_s position;
+
+    float a, b, t;
+
+    for (int m = 0; m < 2; m++) {
+
+        for (float i = 0; i < CHECK_SLICES; i++) {
+            float phase = i / (((float)CHECK_SLICES - 1) / 4) - 2.0;
+
+            HPOD_gait_calc(hexapod, gait, &movements[m], phase, &position);
+
+            int res = HPOD_leg_ik3(hexapod, &position, &a, &b, &t);
+            if (res < 0) {
+                return -m;
+            }
+        }
+    }
+
+    return 0;
+}
 
 void HPOD_output_mix(struct hexapod_s *hexapod, struct hpod_gait_s *gait, struct hpod_vector3_s *movement,
                      float phase_scl, float outputs[6][3])

@@ -30,9 +30,17 @@ void HPOD_servo_init(struct hpod_servo_s *servo, float range_rads, int output_ra
  */
 int HPOD_servo_scale(struct hpod_servo_s *servo, float angle)
 {
+    int output;
+
+    // Handle NAN values safely
+    if(isnan(angle)) {
+        output = servo->output_offset;
+        return output;
+    }
+
     float limited_angle = SERVO_LIMIT_RANGE(-servo->range_rads, servo->range_rads, angle);
 
-    int output = (int) (limited_angle / servo->scale + servo->output_offset);
+    output = (int) (limited_angle / servo->scale + servo->output_offset);
 
     return output;
 }
