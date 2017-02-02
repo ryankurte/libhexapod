@@ -13,6 +13,13 @@ Forward and inverse kinematics as well as linear (no rotational) gait control wo
 [![Build Status](https://travis-ci.org/ryankurte/libhexapod.svg?branch=master)](https://travis-ci.org/ryankurte/libhexapod)
 [![Release](https://img.shields.io/github/release/ryankurte/libhexapod.svg)](https://github.com/ryankurte/libhexapod)
 
+## Components
+
+### Visualiser
+The visualiser uses python cffi bindings to visualise control outputs from the compiled libhexapod.
+
+<img width="1792" alt="screen shot 2017-01-28 at 6 15 52 pm" src="https://cloud.githubusercontent.com/assets/860620/22534115/cb600920-e956-11e6-91ef-67f088937c31.png">
+
 ## Dependencies
 
 - cmake
@@ -20,6 +27,9 @@ Forward and inverse kinematics as well as linear (no rotational) gait control wo
 - gcc (or clang)
 
 Development also requires python3 with numpy and matplotlib.
+
+## Usage
+TODO
 
 ## Development
 
